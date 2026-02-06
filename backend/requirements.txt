@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pymongo
+motor
+python-dotenv
+langchain
+langchain-openai
+langchain-community
+langchain-groq
+openai
+pydantic
+pydantic-settings
+python-multipart
+requests
