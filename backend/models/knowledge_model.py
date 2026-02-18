@@ -12,14 +12,40 @@ class KnowledgeBase(BaseModel):
 class KnowledgeCreate(KnowledgeBase):
     pass
 
-class KnowledgeRecord(KnowledgeBase):
+from enum import Enum
+
+class ProcessingStatus(str, Enum):
+    UPLOADED = "uploaded"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+class KnowledgeMetadata(KnowledgeBase):
     id: str = Field(..., alias="_id")
-    transcript: str
+    transcript: Optional[str] = None
     audio_url: Optional[str] = None
-    category: Optional[str] = None
-    extraction_data: Optional[Dict] = None
-    context_data: Optional[Dict] = None
-    education_data: Optional[Dict] = None
+    original_filename: Optional[str] = None
+    detected_language: Optional[str] = None
+    category: Optional[str] = None # Kept in metadata for easy filtering
+    
+    processing_status: ProcessingStatus = Field(default=ProcessingStatus.UPLOADED)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
         populate_by_name = True
+
+class KnowledgeContent(BaseModel):
+    knowledge_id: str
+    extraction_data: Optional[Dict] = None
+    context_data: Optional[Dict] = None
+    education_data: Optional[Dict] = None
+    translations: Optional[Dict[str, str]] = None
+    processed_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ProcessingLog(BaseModel):
+    knowledge_id: str
+    stage: str # upload, stt, extraction, categorization, education, translation
+    status: str # success, failed
+    error_message: Optional[str] = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+

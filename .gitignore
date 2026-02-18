@@ -43,3 +43,28 @@ coverage/
 
 # Specific files
 backend/test_output.txt
+
+# Backend specific
+backend/debug_*.py
+backend/debug_output*.txt
+backend/gpu_report.txt
+backend/*.wav
+backend/tests/*.wav
+backend/uploads/
+backend/downloads/
+backend/temp_audio_for_stt.wav
+
+
+# Logs
+logs/
+backend/logs/
+*.log
+
+# Audio files (temp)
+*.mp3
+backend/*.mp3
+
+# Temporary Scripts
+backend/analyze_*.py
+backend/verify_*.py
+backend/test_full_flow.py
