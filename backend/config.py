@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     MONGODB_URL: str
     DB_NAME: str = "heritix_db"
     GROQ_API_KEY: str
+    HUGGINGFACEHUB_API_TOKEN: str
+
     
     class Config:
         env_file = ".env"
