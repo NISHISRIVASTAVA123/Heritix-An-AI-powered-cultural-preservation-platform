@@ -6,11 +6,48 @@ router = APIRouter()
 
 @router.get("/all")
 async def get_all_records():
-    records = await db.db.knowledge.find().to_list(100)
-    # Convert _id to string for JSON serialization if needed
+    # Use aggregation to join with content and get summary
+    pipeline = [
+        {"$sort": {"created_at": -1}},
+        {"$limit": 100},
+        {
+            "$lookup": {
+                "from": "knowledge_content",
+                "localField": "_id",
+                "foreignField": "knowledge_id",
+                "as": "content"
+            }
+        },
+        {"$unwind": {"path": "$content", "preserveNullAndEmptyArrays": True}}
+    ]
+    
+    records = await db.db.knowledge.aggregate(pipeline).to_list(100)
+    
+    # Format and flattening
+    formatted_records = []
     for r in records:
         r["_id"] = str(r["_id"])
-    return records
+        
+        # Ensure default values for required frontend fields
+        if "category" not in r: r["category"] = "Uncategorized"
+        if "transcript" not in r: r["transcript"] = ""
+        if "title" not in r: r["title"] = "Untitled Recording"
+        if "contributor" not in r: r["contributor"] = "Anonymous"
+        
+        # Flatten summary
+        content = r.get("content", {})
+        if content:
+             edu = content.get("education_data", {})
+             if edu:
+                 r["summary"] = edu.get("summary")
+        
+        # Remove content object to keep response light if not needed, 
+        # but ArchivePage doesn't use it except for summary.
+        if "content" in r: del r["content"]
+        
+        formatted_records.append(r)
+        
+    return formatted_records
 
 @router.get("/search")
 async def search_records(
@@ -81,3 +118,32 @@ async def search_records(
         formatted_records.append(r)
 
     return formatted_records
+
+@router.get("/{record_id}")
+async def get_record_by_id(record_id: str):
+    # 1. Fetch Metadata
+    metadata = await db.db.knowledge.find_one({"_id": record_id})
+    if not metadata:
+        raise HTTPException(status_code=404, detail="Record not found")
+
+    # 2. Fetch Content
+    content = await db.db.knowledge_content.find_one({"knowledge_id": record_id})
+    
+    # 3. Merge & Format
+    result = {
+        "_id": record_id,
+        "title": metadata.get("title"),
+        "category": metadata.get("category"),
+        "contributor": metadata.get("contributor"),
+        "transcript": metadata.get("transcript"),
+        "audio_url": metadata.get("audio_url"),
+        "created_at": metadata.get("created_at"),
+        "processing_status": metadata.get("processing_status"),
+        # Content fields
+        "education_data": content.get("education_data") if content else None,
+        "translations": content.get("translations") if content else None,
+        "extraction_data": content.get("extraction_data") if content else None,
+        "context_data": content.get("context_data") if content else None
+    }
+    
+    return result
