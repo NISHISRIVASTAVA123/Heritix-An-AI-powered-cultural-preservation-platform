@@ -1,7 +1,11 @@
-import whisper
 import os
-import aiofiles
 
+ffmpeg_path = r"C:\ffmpeg\bin"
+if ffmpeg_path not in os.environ["PATH"]:
+    os.environ["PATH"] += os.pathsep + ffmpeg_path
+
+import whisper
+import aiofiles
 class STTService:
     def __init__(self):
         # Load the model on startup - this might take a moment
