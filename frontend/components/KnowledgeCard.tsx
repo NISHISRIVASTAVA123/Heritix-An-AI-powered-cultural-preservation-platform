@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
+import TiltedCard from './TiltedCard';
 
 interface KnowledgeCardProps {
     id: string;
@@ -57,40 +58,42 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
     const formattedDate = new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
 
     return (
-        <div className="group bg-surface-container-lowest rounded-lg p-8 shadow-[0_20px_40px_rgba(27,28,25,0.06)] hover:translate-y-[-4px] transition-all duration-500 flex flex-col h-full border border-transparent hover:border-outline-variant/20">
-            <div className="flex justify-between items-start mb-6">
-                <div className={`p-3 rounded-xl ${iconBg}`}>
-                    <span className="material-symbols-outlined">{Icon}</span>
-                </div>
-                <span className="px-4 py-1.5 bg-surface-container text-on-surface-variant rounded-full text-xs font-bold tracking-wider uppercase">
-                    {category}
-                </span>
-            </div>
-            
-            <div className="mb-4">
-                <img className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm" alt={title} src={imgUrl} />
-                <h3 className="text-2xl font-bold font-headline text-on-surface mb-3 leading-tight">{title}</h3>
-                <p className="text-on-surface-variant font-body leading-relaxed line-clamp-2">
-                    {summary}
-                </p>
-                <div className="mt-4 flex items-center gap-2 text-sm text-on-surface-variant/70 font-semibold">
-                    <span className="material-symbols-outlined text-sm">person</span>
-                    {contributor}
-                </div>
-            </div>
-            
-            <div className="mt-auto pt-6 flex items-center justify-between border-t border-surface-container-highest/50">
-                <span className="px-4 py-1 bg-surface-variant text-on-surface-variant font-bold text-xs rounded-full">
-                    {formattedDate}
-                </span>
-                
-                <Link href={`/archive/${id}`} className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95 border border-primary/20">
-                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        {audioUrl ? 'play_arrow' : 'article'}
+        <TiltedCard>
+            <div className="group bg-surface-container-lowest rounded-lg p-8 shadow-[0_20px_40px_rgba(27,28,25,0.06)] flex flex-col h-full border border-transparent hover:border-outline-variant/20 relative z-10 w-full">
+                <div className="flex justify-between items-start mb-6">
+                    <div className={`p-3 rounded-xl ${iconBg}`}>
+                        <span className="material-symbols-outlined">{Icon}</span>
+                    </div>
+                    <span className="px-4 py-1.5 bg-surface-container text-on-surface-variant rounded-full text-xs font-bold tracking-wider uppercase">
+                        {category}
                     </span>
-                    {audioUrl ? 'Listen' : 'Read'}
-                </Link>
+                </div>
+                
+                <div className="mb-4">
+                    <img className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm pointer-events-none" alt={title} src={imgUrl} />
+                    <h3 className="text-2xl font-bold font-headline text-on-surface mb-3 leading-tight">{title}</h3>
+                    <p className="text-on-surface-variant font-body leading-relaxed line-clamp-2">
+                        {summary}
+                    </p>
+                    <div className="mt-4 flex items-center gap-2 text-sm text-on-surface-variant/70 font-semibold">
+                        <span className="material-symbols-outlined text-sm">person</span>
+                        {contributor}
+                    </div>
+                </div>
+                
+                <div className="mt-auto pt-6 flex items-center justify-between border-t border-surface-container-highest/50">
+                    <span className="px-4 py-1 bg-surface-variant text-on-surface-variant font-bold text-xs rounded-full">
+                        {formattedDate}
+                    </span>
+                    
+                    <Link href={`/archive/${id}`} className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95 border border-primary/20">
+                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            {audioUrl ? 'play_arrow' : 'article'}
+                        </span>
+                        {audioUrl ? 'Listen' : 'Read'}
+                    </Link>
+                </div>
             </div>
-        </div>
+        </TiltedCard>
     );
 }

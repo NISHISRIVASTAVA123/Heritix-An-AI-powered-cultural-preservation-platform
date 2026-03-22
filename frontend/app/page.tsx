@@ -90,7 +90,7 @@ export default function Home() {
                 <p className="font-headline italic text-2xl text-on-surface leading-snug">
                   "The way my grandmother spoke of the river wasn't just geography; it was an ancestor. I never wanted to lose that rhythm."
                 </p>
-                <p className="text-on-surface-variant font-body">— Elder Sarah Chen, Archive ID #8842</p>
+                <p className="text-on-surface-variant font-body">— Elder Sarah Chen</p>
               </div>
             </div>
           </div>
