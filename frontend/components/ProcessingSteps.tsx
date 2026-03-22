@@ -14,44 +14,75 @@ interface ProcessingStepsProps {
 }
 
 export default function ProcessingSteps({ steps }: ProcessingStepsProps) {
+    const getIcon = (id: string, status: string) => {
+        if (status === 'completed') return 'check_circle';
+        if (id === 'upload') return 'cloud_upload';
+        if (id === 'stt') return 'psychology';
+        if (id === 'analysis') return 'auto_awesome';
+        if (id === 'archive') return 'history_edu';
+        return 'hourglass_empty';
+    };
+
     return (
-        <div className="w-full max-w-2xl mx-auto space-y-6">
-            {steps.map((step, index) => (
-                <div key={step.id} className="relative flex items-center gap-6">
-                    {/* Connecting Line */}
-                    {index !== steps.length - 1 && (
-                        <div className={`
-                            absolute left-6 top-10 bottom-[-24px] w-0.5 
-                            ${step.status === 'completed' ? 'bg-secondary' : 'bg-muted'}
-                        `} />
-                    )}
+        <div className="bg-surface-container-lowest p-8 md:p-12 rounded-lg shadow-[0_20px_40px_rgba(27,28,25,0.06)] relative overflow-hidden group max-w-2xl mx-auto">
+            {/* Subtle Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 pointer-events-none"></div>
 
-                    {/* Icon Circle */}
-                    <div className={`
-                        relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 text-xl transition-all duration-500
-                        ${step.status === 'completed' ? 'bg-secondary border-secondary text-white' :
-                            step.status === 'processing' ? 'bg-highlight border-highlight text-white animate-pulse' :
-                                step.status === 'failed' ? 'bg-red-100 border-red-500 text-red-600' :
-                                    'bg-white border-muted text-muted'}
-                    `}>
-                        {step.status === 'completed' ? '✓' :
-                            step.status === 'failed' ? '⚠' :
-                                step.status === 'processing' ? '⚡' :
-                                    (index + 1)}
-                    </div>
+            <div className="relative z-10 space-y-12">
+                {steps.map((step) => {
+                    const isCompleted = step.status === 'completed';
+                    const isProcessing = step.status === 'processing';
+                    const isFailed = step.status === 'failed';
+                    const isPending = step.status === 'pending';
 
-                    {/* Text Content */}
-                    <div className="flex-1">
-                        <h3 className={`font-serif font-bold text-lg ${step.status === 'completed' ? 'text-secondary' :
-                                step.status === 'processing' ? 'text-highlight' :
-                                    'text-stone-500'
-                            }`}>
-                            {step.label}
-                        </h3>
-                        <p className="text-sm text-stone-600">{step.description}</p>
-                    </div>
-                </div>
-            ))}
+                    let iconBg = 'bg-surface-container-highest';
+                    let iconColor = 'text-on-surface-variant';
+                    if (isCompleted) {
+                        iconBg = 'bg-primary';
+                        iconColor = 'text-on-primary';
+                    } else if (isProcessing) {
+                        iconBg = 'bg-primary-container';
+                        iconColor = 'text-on-primary';
+                    } else if (isFailed) {
+                        iconBg = 'bg-error-container';
+                        iconColor = 'text-error';
+                    }
+
+                    let titleColor = isCompleted || isProcessing ? 'text-on-surface' : 'text-on-surface-variant';
+                    if (isCompleted) titleColor = 'text-primary';
+
+                    return (
+                        <div key={step.id} className={`flex flex-col md:flex-row items-center gap-6 text-left group/step ${isPending ? 'opacity-50' : ''}`}>
+                            <div className={`w-14 h-14 rounded-full ${iconBg} bg-opacity-100 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover/step:scale-110 ${isProcessing ? 'animate-pulse' : ''}`}>
+                                <span className={`material-symbols-outlined ${iconColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                                    {getIcon(step.id, step.status)}
+                                </span>
+                            </div>
+                            
+                            <div className="flex-grow w-full space-y-3">
+                                <div className="flex justify-between items-end">
+                                    <h3 className={`font-headline font-bold text-xl ${titleColor}`}>{step.label}</h3>
+                                    <span className={`text-xs font-label font-semibold tracking-widest uppercase ${isCompleted || isProcessing ? 'text-primary/70' : 'text-on-surface-variant/50'}`}>
+                                        {step.status}
+                                    </span>
+                                </div>
+                                <div className="h-3 w-full bg-surface-container rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full rounded-full relative ${
+                                            isCompleted ? 'bg-gradient-to-r from-primary to-primary-container w-full' : 
+                                            isProcessing ? 'bg-gradient-to-r from-primary to-primary-container w-[65%]' : 
+                                            isFailed ? 'bg-error w-[10%]' :
+                                            'bg-transparent w-0'
+                                        }`}
+                                    >
+                                        {isProcessing && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

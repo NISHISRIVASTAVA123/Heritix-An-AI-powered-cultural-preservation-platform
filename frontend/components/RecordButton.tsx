@@ -10,31 +10,23 @@ interface RecordButtonProps {
 
 export default function RecordButton({ isRecording, onClick, disabled }: RecordButtonProps) {
     return (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            className={`
-                relative group flex flex-col items-center justify-center
-                w-48 h-48 rounded-full transition-all duration-300
-                ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
-                ${isRecording ? 'bg-red-600 shadow-red-900/50' : 'bg-primary shadow-primary/50'}
-                text-white font-serif shadow-2xl border-4 border-white/20
-            `}
-        >
-            {/* Pulsing Ring Animation when recording */}
-            {isRecording && (
-                <span className="absolute w-full h-full rounded-full bg-red-600 opacity-75 animate-ping"></span>
-            )}
-
-            {/* Icon */}
-            <div className={`relative z-10 text-5xl mb-2 transition-transform ${isRecording ? 'scale-110' : ''}`}>
-                {isRecording ? '⏹' : '🎙'}
-            </div>
-
-            {/* Label */}
-            <span className="relative z-10 text-lg font-semibold tracking-wide uppercase">
-                {isRecording ? 'Stop Recording' : 'Start Recording'}
-            </span>
-        </button>
+        <div className="relative group mb-8 md:mb-16">
+            <div className={`absolute inset-0 rounded-full blur-3xl transition-opacity duration-700
+                ${isRecording ? 'bg-error/30 opacity-100 animate-pulse' : 'bg-primary-container/20 opacity-50 group-hover:opacity-100'}
+            `}></div>
+            <button
+                onClick={onClick}
+                disabled={disabled}
+                className={`relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500
+                    ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}
+                    ${isRecording ? 'bg-error text-on-error animate-pulse shadow-error/50' : 'bg-gradient-to-br from-primary to-primary-container text-on-primary'}
+                `}
+                aria-label={isRecording ? 'Stop Recording' : 'Start Recording'}
+            >
+                <span className="material-symbols-outlined text-7xl md:text-8xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    {isRecording ? 'stop' : 'mic'}
+                </span>
+            </button>
+        </div>
     );
 }
