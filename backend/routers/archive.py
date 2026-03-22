@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from db.mongo import db
 from typing import List, Optional
 
@@ -8,6 +8,14 @@ router = APIRouter()
 async def get_all_records():
     # Use aggregation to join with content and get summary
     pipeline = [
+        {
+            "$match": {
+                "processing_status": "completed",
+                "title": {"$exists": True, "$ne": None},
+                "transcript": {"$exists": True, "$ne": None},
+                "category": {"$exists": True, "$ne": None}
+            }
+        },
         {"$sort": {"created_at": -1}},
         {"$limit": 100},
         {
@@ -58,7 +66,12 @@ async def search_records(
     pipeline = []
 
     # 1. Match Stage (Filters)
-    match_query = {}
+    match_query = {
+        "processing_status": "completed",
+        "title": {"$exists": True, "$ne": None},
+        "transcript": {"$exists": True, "$ne": None},
+        "category": {"$exists": True, "$ne": None}
+    }
     if category and category != "All":
         match_query["category"] = category
     if language:

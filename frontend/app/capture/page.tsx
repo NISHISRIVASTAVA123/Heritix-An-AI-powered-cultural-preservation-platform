@@ -152,7 +152,9 @@ export default function CapturePage() {
                         // For this file, I'll implement a `fetchResult` function.
                         fetchResult(recordId);
                     } else if (data.status === 'failed') {
-                        setError("Processing failed. Please try again.");
+                        const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
+                        const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
+                        setError(errorMsg);
                         setStatus('idle'); // or error state
                         clearInterval(interval);
                     }
