@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Voice Recording Interface - FolkLore AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f5f4ef",
+              "on-tertiary-fixed": "#3b0520",
+              "surface-dim": "#dbdad5",
+              "outline": "#72796e",
+              "surface-variant": "#e3e3de",
+              "tertiary-fixed-dim": "#ffb0cc",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#1b1c19",
+              "on-error-container": "#93000a",
+              "surface": "#faf9f4",
+              "on-secondary-container": "#794e2e",
+              "outline-variant": "#c2c9bb",
+              "on-secondary": "#ffffff",
+              "on-surface-variant": "#42493e",
+              "surface-tint": "#3b6934",
+              "inverse-primary": "#a1d494",
+              "surface-container": "#efeee9",
+              "error-container": "#ffdad6",
+              "secondary": "#805533",
+              "on-tertiary-container": "#ffaac8",
+              "on-secondary-fixed-variant": "#653d1e",
+              "primary": "#154212",
+              "primary-container": "#2d5a27",
+              "background": "#faf9f4",
+              "primary-fixed": "#bcf0ae",
+              "on-error": "#ffffff",
+              "surface-bright": "#faf9f4",
+              "primary-fixed-dim": "#a1d494",
+              "inverse-surface": "#30312e",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed": "#301400",
+              "tertiary": "#60233e",
+              "error": "#ba1a1a",
+              "on-primary-fixed-variant": "#23501e",
+              "surface-container-highest": "#e3e3de",
+              "on-tertiary-fixed-variant": "#71314c",
+              "secondary-container": "#fdc39a",
+              "on-surface": "#1b1c19",
+              "secondary-fixed": "#ffdcc5",
+              "tertiary-fixed": "#ffd9e4",
+              "surface-container-high": "#e9e8e3",
+              "inverse-on-surface": "#f2f1ec",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#9dd090",
+              "tertiary-container": "#7c3a55",
+              "secondary-fixed-dim": "#f4bb92",
+              "on-primary-fixed": "#002201"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .mic-pulse {
+            box-shadow: 0 0 0 0 rgba(21, 66, 18, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(21, 66, 18, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(21, 66, 18, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(21, 66, 18, 0); }
+        }
+        .waveform-bar {
+            transition: height 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#faf9f4]/80 dark:bg-[#1b1c19]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] flex justify-between items-center px-8 py-6 max-w-none w-full">
+<div class="text-2xl font-headline font-bold tracking-tight text-[#154212] dark:text-[#d0e8c2]">
+            FolkLore AI
+        </div>
+<div class="hidden md:flex gap-10 items-center">
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Archive</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Stories</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Oral Histories</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Collections</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#efeee9]/50 dark:hover:bg-[#2d2e2a]/50 scale-95 active:scale-90 transition-all duration-500 ease-in-out flex items-center justify-center">
+<span class="material-symbols-outlined text-[#154212] dark:text-[#d0e8c2]">light_mode</span>
+</button>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center max-w-5xl mx-auto text-center">
+<!-- Header & Identity -->
+<header class="mb-16 space-y-4 max-w-2xl">
+<h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-primary">Capture the Oral History</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed">Your voice is a bridge across generations. Speak freely, and let the ledger record your truth.</p>
+</header>
+<!-- Recording Interface Container -->
+<section class="w-full flex flex-col items-center">
+<!-- Large Microphone Button -->
+<div class="relative group mb-16">
+<div class="absolute inset-0 bg-primary-container/20 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+<button class="relative z-10 w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-on-primary mic-pulse shadow-2xl hover:scale-105 active:scale-95 transition-transform duration-500">
+<span class="material-symbols-outlined text-7xl md:text-8xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+<!-- Waveform Feedback -->
+<div class="w-full max-w-3xl h-32 flex items-center justify-center gap-1.5 mb-8">
+<!-- Static Waveform Bars -->
+<div class="waveform-bar w-1.5 h-6 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-12 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-20 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-10 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-24 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-16 bg-primary rounded-full"></div>
+<div class="waveform-bar w-1.5 h-28 bg-primary rounded-full"></div>
+<div class="waveform-bar w-1.5 h-32 bg-primary rounded-full"></div>
+<div class="waveform-bar w-1.5 h-20 bg-primary rounded-full"></div>
+<div class="waveform-bar w-1.5 h-24 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-14 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-22 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-8 bg-primary-fixed-dim rounded-full"></div>
+<div class="waveform-bar w-1.5 h-12 bg-primary-fixed-dim rounded-full"></div>
+</div>
+<!-- Hint Text -->
+<div class="mb-12">
+<p class="font-headline font-semibold text-xl text-secondary italic">
+                    "You may speak in any language or dialect."
+                </p>
+</div>
+<!-- Main Actions -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-4xl px-4">
+<button class="flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined">play_arrow</span>
+                    Start
+                </button>
+<button class="flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-secondary text-on-secondary font-headline font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined">stop</span>
+                    Stop
+                </button>
+<button class="flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-headline font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined">volume_up</span>
+                    Play
+                </button>
+<button class="flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined">upload</span>
+                    Upload
+                </button>
+</div>
+</section>
+<!-- Decorative Info Card (Bento-style) -->
+<section class="mt-24 grid md:grid-cols-2 gap-8 w-full">
+<div class="bg-surface-container-low p-10 rounded-lg text-left space-y-4">
+<span class="material-symbols-outlined text-secondary text-4xl">history_edu</span>
+<h3 class="font-headline font-bold text-2xl text-primary">Preservation Ethics</h3>
+<p class="text-on-surface-variant leading-relaxed">Every recording is encrypted and stored with cultural sensitivity. You retain full ownership of your story while contributing to the living ledger.</p>
+</div>
+<div class="bg-surface-container-low p-10 rounded-lg text-left space-y-4">
+<span class="material-symbols-outlined text-secondary text-4xl">language</span>
+<h3 class="font-headline font-bold text-2xl text-primary">Dialect Mapping</h3>
+<p class="text-on-surface-variant leading-relaxed">Our AI recognizes nuanced linguistic patterns, ensuring your unique phrasing and regional expressions are preserved with absolute accuracy.</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full rounded-t-[3rem] mt-20 bg-[#efeee9] dark:bg-[#121311] flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full">
+<div class="flex flex-col gap-4 text-center md:text-left mb-8 md:mb-0">
+<div class="font-['Manrope'] font-bold text-[#1b1c19] dark:text-[#faf9f4] text-xl">FolkLore AI</div>
+<p class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70">
+                © 2024 FolkLore AI. Preserving the Living Ledger.
+            </p>
+</div>
+<div class="flex gap-8 flex-wrap justify-center">
+<a class="text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Accessibility</a>
+<a class="text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Archive Ethics</a>
+</div>
+</footer>
+</body></html>
