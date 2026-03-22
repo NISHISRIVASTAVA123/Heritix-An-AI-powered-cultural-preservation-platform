@@ -90,7 +90,11 @@ async def process_record_task(record_id: str, audio_url: str):
         # 2. STT
         await log_stage(record_id, "stt", "started")
         stt_result = await stt_service.transcribe(audio_content)
-        transcript = stt_result["text"]
+        transcript = stt_result["text"].strip()
+        
+        if not transcript:
+            raise ValueError("No speech detected in the recording. Please speak clearly and try again.")
+            
         language = stt_result["language"]
         
         await db.db.knowledge.update_one(
@@ -102,10 +106,22 @@ async def process_record_task(record_id: str, audio_url: str):
         # 3. Extraction
         await log_stage(record_id, "extraction", "started")
         extraction_data = await agent_manager.process_extraction(transcript)
+        
+        # Extract title from extraction_data
+        generated_title = extraction_data.get("title") if isinstance(extraction_data, dict) else None
+        
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
             {"$set": {"extraction_data": extraction_data}}
         )
+        
+        # Update metadata title if generated
+        if generated_title:
+            await db.db.knowledge.update_one(
+                {"_id": record_id},
+                {"$set": {"title": generated_title}}
+            )
+            
         await log_stage(record_id, "extraction", "success")
 
         # 4. Categorization

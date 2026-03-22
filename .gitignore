@@ -68,3 +68,15 @@ backend/*.mp3
 backend/analyze_*.py
 backend/verify_*.py
 backend/test_full_flow.py
+
+# Unnecessary Testing and UI Generation Artifacts
+backend/tests/
+frontend/stitch/
+test_*.py
+test_*.log
+test_*.html
+test_*.webm
+*.webm
+*.mp4
+*.mp3
+*.wav

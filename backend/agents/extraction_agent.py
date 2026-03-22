@@ -19,6 +19,7 @@ class ExtractionAgent(BaseAgent):
             Extract key cultural knowledge entities from the following text: {text}
             
             Return the output in STRICT JSON format with the following keys:
+            - title (str): A concise, descriptive title for this piece of cultural knowledge (max 6 words).
             - knowledge_type (str): e.g., "folk_remedy", "ritual", "story", "other"
             - details (dict): Key details extracted (ingredients, steps, characters, etc.)
             - cultural_context (str): The cultural significance or context.
