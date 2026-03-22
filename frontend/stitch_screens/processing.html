@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Processing Status | FolkLore AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#1b1c19",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#bcf0ae",
+              "on-secondary-fixed": "#301400",
+              "secondary-container": "#fdc39a",
+              "inverse-on-surface": "#f2f1ec",
+              "on-secondary": "#ffffff",
+              "tertiary": "#60233e",
+              "on-secondary-fixed-variant": "#653d1e",
+              "surface-bright": "#faf9f4",
+              "surface-dim": "#dbdad5",
+              "surface-container-low": "#f5f4ef",
+              "tertiary-container": "#7c3a55",
+              "on-surface-variant": "#42493e",
+              "on-primary-container": "#9dd090",
+              "surface-tint": "#3b6934",
+              "on-tertiary-fixed": "#3b0520",
+              "secondary-fixed": "#ffdcc5",
+              "error": "#ba1a1a",
+              "on-secondary-container": "#794e2e",
+              "on-tertiary-fixed-variant": "#71314c",
+              "primary-container": "#2d5a27",
+              "secondary": "#805533",
+              "outline-variant": "#c2c9bb",
+              "primary-fixed-dim": "#a1d494",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#30312e",
+              "on-error": "#ffffff",
+              "surface-variant": "#e3e3de",
+              "on-surface": "#1b1c19",
+              "tertiary-fixed": "#ffd9e4",
+              "primary": "#154212",
+              "surface-container": "#efeee9",
+              "inverse-primary": "#a1d494",
+              "surface": "#faf9f4",
+              "on-primary-fixed": "#002201",
+              "on-tertiary-container": "#ffaac8",
+              "surface-container-highest": "#e3e3de",
+              "error-container": "#ffdad6",
+              "on-primary-fixed-variant": "#23501e",
+              "tertiary-fixed-dim": "#ffb0cc",
+              "outline": "#72796e",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#f4bb92",
+              "background": "#faf9f4",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e9e8e3"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .step-active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#faf9f4]/80 dark:bg-[#1b1c19]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] flex justify-between items-center px-8 py-6 max-w-none">
+<div class="text-2xl font-bold tracking-tight text-[#154212] dark:text-[#d0e8c2] font-headline">
+            FolkLore AI
+        </div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Archive</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Stories</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Oral Histories</a>
+<a class="font-headline font-semibold text-sm tracking-wide text-[#1b1c19]/60 dark:text-[#faf9f4]/60 hover:text-[#154212] transition-all duration-500 ease-in-out" href="#">Collections</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#efeee9]/50 dark:hover:bg-[#2d2e2a]/50 scale-95 active:scale-90 transition-all duration-500">
+<span class="material-symbols-outlined text-[#154212] dark:text-[#d0e8c2]">light_mode</span>
+</button>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-grow flex items-center justify-center px-6 pt-32 pb-20">
+<div class="max-w-3xl w-full text-center space-y-16">
+<!-- Hero Header -->
+<div class="space-y-6">
+<div class="inline-flex items-center justify-center p-4 bg-surface-container-low rounded-full mb-4">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</div>
+<h1 class="text-4xl md:text-5xl font-headline font-extrabold text-on-surface tracking-tight max-w-2xl mx-auto leading-tight">
+                    We are carefully analyzing your heritage.
+                </h1>
+<p class="text-lg text-on-surface-variant font-body max-w-lg mx-auto">
+                    Taking a moment to digitize the soul of your story with the dignity it deserves.
+                </p>
+</div>
+<!-- Bento Status Card -->
+<div class="bg-surface-container-lowest p-8 md:p-12 rounded-lg shadow-[0_20px_40px_rgba(27,28,25,0.06)] relative overflow-hidden group">
+<!-- Subtle Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-50 pointer-events-none"></div>
+<div class="relative z-10 space-y-12">
+<!-- Step 1: Complete -->
+<div class="flex flex-col md:flex-row items-center gap-6 text-left group/step">
+<div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 transition-transform duration-500 group-hover/step:scale-110">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex-grow w-full space-y-3">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-xl text-primary">Speech to Text</h3>
+<span class="text-xs font-label font-semibold text-primary/70 tracking-widest uppercase">COMPLETE</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-full rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Step 2: Active -->
+<div class="flex flex-col md:flex-row items-center gap-6 text-left group/step">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center text-on-primary shrink-0 transition-transform duration-500 group-hover/step:scale-110 animate-pulse">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="flex-grow w-full space-y-3">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-xl text-on-surface">Understanding Knowledge</h3>
+<span class="text-xs font-label font-semibold text-primary/70 tracking-widest uppercase">PROCESSING</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-[65%] rounded-full relative">
+<div class="absolute inset-0 bg-white/20 animate-shimmer"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex flex-col md:flex-row items-center gap-6 text-left group/step opacity-50">
+<div class="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="flex-grow w-full space-y-3">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-xl text-on-surface-variant">Preserving Culture</h3>
+<span class="text-xs font-label font-semibold text-on-surface-variant/50 tracking-widest uppercase">PENDING</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-transparent w-0 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action -->
+<div class="pt-4">
+<button class="px-8 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label font-medium hover:bg-surface-container-high transition-all duration-300 active:scale-95">
+                    Cancel Processing
+                </button>
+</div>
+</div>
+</main>
+<!-- Archive Preview Section (Editorial style) -->
+<section class="px-12 pb-24">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-surface-container-low p-8 rounded-lg space-y-4 md:col-span-2 flex flex-col justify-end min-h-[300px] relative overflow-hidden group">
+<div class="absolute inset-0 opacity-20 group-hover:scale-105 transition-transform duration-700">
+<img alt="" class="w-full h-full object-cover" data-alt="Close up of old weathered books in a library" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR-nHEnH09JfD_3WeAtYol7C7K5Z3znWX24h1iSs9WGgFYSO8xZc72s0rZ627-6gi3fxnTKMRswvCdgKuQNY5ArM2T-ttbErFz3cXaIT_ins0kqGhsThfdWr6pA4VW3jK73JEEByAwNBkhAKAjKPobhV-l2AdVuKQo4FEdnYUW7BdHuPAwMipHyjl_o-vsNYzfvSiz9cNGZZZOJtbBiLRZMtKERADcutf45wAz7o0noYFFansYh8EM9py_1gKbLwqfc8CosPANuBBa"/>
+</div>
+<div class="relative z-10">
+<span class="text-secondary font-label font-bold tracking-widest text-xs uppercase">Curator's Note</span>
+<h2 class="text-2xl font-headline font-bold text-on-surface mt-2">Every word is a legacy.</h2>
+<p class="text-on-surface-variant max-w-md">Our AI doesn't just transcribe; it listens for the cultural nuances that define your family's unique ledger.</p>
+</div>
+</div>
+<div class="bg-tertiary-container/10 p-8 rounded-lg flex flex-col items-center justify-center text-center space-y-4">
+<span class="material-symbols-outlined text-tertiary text-5xl">mic_external_on</span>
+<h3 class="font-headline font-bold text-on-surface">Audio Fidelity</h3>
+<p class="text-sm text-on-surface-variant">Removing background noise while preserving the warmth of the original voice recording.</p>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full rounded-t-[3rem] mt-20 bg-[#efeee9] dark:bg-[#121311] flex flex-col md:flex-row justify-between items-center px-12 py-16">
+<div class="space-y-4 text-center md:text-left">
+<div class="font-['Manrope'] font-bold text-[#1b1c19] dark:text-[#faf9f4] text-xl">FolkLore AI</div>
+<p class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70">© 2024 FolkLore AI. Preserving the Living Ledger.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8 mt-8 md:mt-0">
+<a class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Accessibility</a>
+<a class="font-['Inter'] text-sm leading-relaxed tracking-normal text-[#1b1c19]/70 dark:text-[#faf9f4]/70 hover:text-[#154212] dark:hover:text-[#d0e8c2] underline-offset-4 hover:underline transition-opacity duration-300 opacity-80 hover:opacity-100" href="#">Archive Ethics</a>
+</div>
+</footer>
+</body></html>

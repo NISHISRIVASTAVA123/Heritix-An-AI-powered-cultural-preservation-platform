@@ -1,38 +1,119 @@
 @import "tailwindcss";
 
-:root {
-  /* Heritage Color Palette */
-  --bg-off-white: #F5F1E8;
-  --text-charcoal: #2F2F2F;
-  --accent-brown: #8B5E3C;
-  --accent-green: #4A6A4F;
-  --highlight-clay: #C48A5A;
-  --disabled-taupe: #CFC8BE;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* Semantic Mappings */
-  --background: var(--bg-off-white);
-  --foreground: var(--text-charcoal);
-  --primary: var(--accent-brown);
-  --secondary: var(--accent-green);
-  --highlight: var(--highlight-clay);
-  --muted: var(--disabled-taupe);
+@theme {
+  --color-tertiary: #60233e;
+  --color-surface-container-lowest: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-tertiary-fixed: #3b0520;
+  --color-surface: #faf9f4;
+  --color-surface-container-high: #e9e8e3;
+  --color-outline: #72796e;
+  --color-on-tertiary-fixed-variant: #71314c;
+  --color-primary-fixed-dim: #a1d494;
+  --color-primary-fixed: #bcf0ae;
+  --color-on-primary-fixed-variant: #23501e;
+  --color-inverse-primary: #a1d494;
+  --color-tertiary-container: #7c3a55;
+  --color-secondary-container: #fdc39a;
+  --color-tertiary-fixed-dim: #ffb0cc;
+  --color-on-surface: #1b1c19;
+  --color-surface-container-low: #f5f4ef;
+  --color-surface-container-highest: #e3e3de;
+  --color-on-background: #1b1c19;
+  --color-on-tertiary: #ffffff;
+  --color-inverse-surface: #30312e;
+  --color-outline-variant: #c2c9bb;
+  --color-on-secondary: #ffffff;
+  --color-surface-dim: #dbdad5;
+  --color-on-secondary-fixed: #301400;
+  --color-surface-bright: #faf9f4;
+  --color-secondary-fixed-dim: #f4bb92;
+  --color-error: #ba1a1a;
+  --color-on-surface-variant: #42493e;
+  --color-background: #faf9f4;
+  --color-surface-tint: #3b6934;
+  --color-primary: #154212;
+  --color-inverse-on-surface: #f2f1ec;
+  --color-on-primary-container: #9dd090;
+  --color-on-primary-fixed: #002201;
+  --color-surface-variant: #e3e3de;
+  --color-primary-container: #2d5a27;
+  --color-on-tertiary-container: #ffaac8;
+  --color-secondary-fixed: #ffdcc5;
+  --color-secondary: #805533;
+  --color-surface-container: #efeee9;
+  --color-on-error: #ffffff;
+  --color-on-secondary-fixed-variant: #653d1e;
+  --color-tertiary-fixed: #ffd9e4;
+  --color-on-secondary-container: #794e2e;
+  --color-on-primary: #ffffff;
+  --color-on-error-container: #93000a;
+
+  --font-headline: var(--font-manrope);
+  --font-body: var(--font-inter);
+  --font-label: var(--font-inter);
+
+  --radius-lg: 2rem;
+  --radius-xl: 3rem;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-highlight: var(--highlight);
-  --color-muted: var(--muted);
-  
-  --font-serif: var(--font-playfair);
-  --font-sans: var(--font-inter);
+@layer base {
+  .dark {
+    --color-surface: #1b1c19;
+    --color-on-surface: #e3e3de;
+    --color-surface-container-lowest: #0f100d;
+    --color-surface-container-low: #171815;
+    --color-surface-container: #1d1e1b;
+    --color-surface-container-high: #282926;
+    --color-surface-container-highest: #333431;
+    --color-on-surface-variant: #c2c9bb;
+    
+    --color-primary: #a1d494;
+    --color-on-primary: #003a01;
+    --color-primary-container: #154212;
+    --color-on-primary-container: #bcf0ae;
+    
+    --color-secondary: #f4bb92;
+    --color-on-secondary: #4b2809;
+    --color-secondary-container: #653d1e;
+    --color-on-secondary-container: #ffdcc5;
+    
+    --color-tertiary: #ffb0cc;
+    --color-on-tertiary: #541632;
+    --color-tertiary-container: #71314c;
+    --color-on-tertiary-container: #ffd9e4;
+    
+    --color-error: #ffb4ab;
+    --color-on-error: #690005;
+    --color-error-container: #93000a;
+    --color-on-error-container: #ffdad6;
+
+    --color-outline: #8b9286;
+    --color-outline-variant: #42493e;
+  }
 }
+
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1, h2, h3, .font-headline {
+  font-family: var(--font-headline), sans-serif;
+}
+
+.tonal-shift-bg {
+  background-color: rgba(250, 249, 244, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tonal-shift-bg {
+    background-color: rgba(27, 28, 25, 0.8);
+  }
 }
 
