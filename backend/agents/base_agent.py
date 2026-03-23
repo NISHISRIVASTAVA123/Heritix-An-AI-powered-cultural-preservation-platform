@@ -6,7 +6,11 @@ class BaseAgent(ABC):
         self.name = name
 
     @abstractmethod
+<<<<<<< HEAD
     async def process(self, input_data: Any) -> Dict[str, Any]:
+=======
+    async def process(self, input_data: Any, **kwargs) -> Dict[str, Any]:
+>>>>>>> nishi_20
         """
         Process the input data and return result
         """

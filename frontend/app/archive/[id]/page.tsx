@@ -15,10 +15,21 @@ interface RecordDetail {
     created_at: string;
     processing_status: string;
     education_data?: {
+<<<<<<< HEAD
         summary: string;
         lesson: string;
         moral: string;
         quiz_questions: { question: string; answer: string }[];
+=======
+        summary: { en: string; hi: string; native: string } | string;
+        lesson: { en: string; hi: string; native: string } | string;
+        moral: { en: string; hi: string; native: string } | string;
+        quiz_questions: {
+            en: { question: string; answer: string }[];
+            hi: { question: string; answer: string }[];
+            native: { question: string; answer: string }[];
+        } | { question: string; answer: string }[];
+>>>>>>> nishi_20
     };
     translations?: { [key: string]: string };
     context_data?: {
@@ -37,6 +48,10 @@ export default function RecordDetailPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+<<<<<<< HEAD
+=======
+    const [eduLang, setEduLang] = useState<"native" | "en" | "hi">("native");
+>>>>>>> nishi_20
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
@@ -116,6 +131,21 @@ export default function RecordDetailPage() {
 
     const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+<<<<<<< HEAD
+=======
+    const getEduText = (field: any) => {
+        if (!field) return null;
+        if (typeof field === 'string') return field;
+        return field[eduLang] || field.native || field.en;
+    };
+
+    const getEduQuiz = (field: any) => {
+        if (!field) return [];
+        if (Array.isArray(field)) return field;
+        return field[eduLang] || field.native || field.en || [];
+    };
+
+>>>>>>> nishi_20
     return (
         <main className="max-w-screen-xl mx-auto px-6 pt-32 pb-32">
             <Link href="/archive" className="inline-flex items-center gap-2 mb-8 text-on-surface-variant hover:text-primary transition-colors font-bold text-sm tracking-wide uppercase">
@@ -191,6 +221,11 @@ export default function RecordDetailPage() {
                 </div>
             )}
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> nishi_20
             {/* Two Column Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
                 {/* Left Column: Main Narrative */}
@@ -257,11 +292,61 @@ export default function RecordDetailPage() {
                             </div>
                         </div>
                     )}
+<<<<<<< HEAD
+=======
+
+                    {/* AI Insights Card */}
+                    {record.education_data && (
+                        <div className="bg-primary text-on-primary p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+                            <div className="absolute -right-16 -top-16 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+                            
+                            <div className="flex items-center gap-3 mb-8 relative z-10 justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined bg-on-primary/10 p-2 rounded-xl backdrop-blur-sm text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                                    <h3 className="font-headline text-2xl font-bold tracking-tight text-on-primary">AI Insights</h3>
+                                </div>
+                                
+                                {typeof record.education_data.summary !== 'string' && (
+                                    <div className="flex gap-1 bg-on-primary/10 p-1 rounded-lg backdrop-blur-sm">
+                                        <button onClick={() => setEduLang('native')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${eduLang === 'native' ? 'bg-on-primary text-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary'}`}>Native</button>
+                                        <button onClick={() => setEduLang('en')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${eduLang === 'en' ? 'bg-on-primary text-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary'}`}>EN</button>
+                                        <button onClick={() => setEduLang('hi')} className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${eduLang === 'hi' ? 'bg-on-primary text-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary'}`}>HI</button>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-6 relative z-10 text-center">
+                                {record.education_data?.summary && (
+                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3">Summary</p>
+                                        <p className="text-lg md:text-xl leading-relaxed text-on-primary">{getEduText(record.education_data.summary)}</p>
+                                    </div>
+                                )}
+
+                                {record.education_data?.lesson && (
+                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3 flex items-center justify-center gap-2">
+                                            <span className="material-symbols-outlined text-sm">school</span> Core Lesson
+                                        </p>
+                                        <p className="text-lg md:text-xl leading-relaxed text-on-primary">{getEduText(record.education_data.lesson)}</p>
+                                    </div>
+                                )}
+
+                                {record.education_data?.moral && (
+                                    <p className="pt-8 pb-4 text-on-primary leading-relaxed italic border-t border-on-primary/20 font-serif text-2xl md:text-3xl font-medium">
+                                        "{getEduText(record.education_data.moral)}"
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+>>>>>>> nishi_20
                 </div>
 
                 {/* Right Column: AI & Meta */}
                 <div className="lg:col-span-4 space-y-8">
                     
+<<<<<<< HEAD
                     {/* AI Insights Card */}
                     <div className="bg-primary text-on-primary p-8 md:p-10 rounded-[2rem] shadow-xl relative overflow-hidden group">
                         <div className="absolute -right-16 -top-16 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
@@ -294,6 +379,8 @@ export default function RecordDetailPage() {
                         </div>
                     </div>
 
+=======
+>>>>>>> nishi_20
                     {/* Classifications */}
                     <div className="bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/20">
                         <h4 className="font-headline font-bold text-on-surface mb-6 flex items-center gap-2">
@@ -325,14 +412,22 @@ export default function RecordDetailPage() {
                     </div>
 
                     {/* Interactive Quiz (if available) */}
+<<<<<<< HEAD
                     {record.education_data?.quiz_questions && record.education_data.quiz_questions.length > 0 && (
+=======
+                    {record.education_data?.quiz_questions && getEduQuiz(record.education_data.quiz_questions).length > 0 && (
+>>>>>>> nishi_20
                         <div className="bg-secondary-fixed/50 p-8 rounded-[2rem] border border-secondary-fixed shadow-[0_8px_16px_rgba(253,195,154,0.1)]">
                             <div className="flex items-center gap-3 mb-6">
                                 <span className="material-symbols-outlined text-secondary p-2 bg-secondary/10 rounded-xl">quiz</span>
                                 <h3 className="font-headline text-xl font-bold text-on-surface">Test Your Knowledge</h3>
                             </div>
                             <div className="space-y-4">
+<<<<<<< HEAD
                                 {record.education_data.quiz_questions.map((q, i) => (
+=======
+                                {getEduQuiz(record.education_data.quiz_questions).map((q: any, i: number) => (
+>>>>>>> nishi_20
                                     <div key={i} className="bg-surface p-5 rounded-2xl shadow-sm border border-secondary/10">
                                         <p className="font-bold text-on-surface mb-3 leading-snug">{i + 1}. {q.question}</p>
                                         <details className="group">

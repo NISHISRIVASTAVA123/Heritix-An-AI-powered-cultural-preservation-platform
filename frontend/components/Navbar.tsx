@@ -5,11 +5,19 @@ import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+<<<<<<< HEAD
+=======
+import { SignInButton, UserButton, useAuth } from '@clerk/nextjs';
+>>>>>>> nishi_20
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+<<<<<<< HEAD
+=======
+  const { isSignedIn, isLoaded } = useAuth();
+>>>>>>> nishi_20
 
   useEffect(() => {
     setMounted(true);
@@ -65,6 +73,21 @@ export default function Navbar() {
             <div className="w-5 h-5" />
           )}
         </button>
+<<<<<<< HEAD
+=======
+
+        {!isSignedIn && isLoaded && (
+          <SignInButton mode="modal">
+            <button className="bg-[#154212] hover:bg-[#1b5517] text-[#faf9f4] dark:bg-[#d0e8c2] dark:hover:bg-[#bce0a8] dark:text-[#1b1c19] px-5 py-2 rounded-full font-headline font-bold text-sm transition-all duration-300 shadow-sm active:scale-95">
+              Sign In
+            </button>
+          </SignInButton>
+        )}
+
+        {isSignedIn && isLoaded && (
+          <UserButton afterSwitchSessionUrl="/" appearance={{ elements: { avatarBox: "w-9 h-9 border border-[#154212]/20 dark:border-[#d0e8c2]/20 shadow-sm" } }} />
+        )}
+>>>>>>> nishi_20
       </div>
     </nav>
   );

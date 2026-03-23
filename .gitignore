@@ -80,3 +80,8 @@ test_*.webm
 *.mp4
 *.mp3
 *.wav
+<<<<<<< HEAD
+=======
+__pycache__/ 
+*.pyc 
+>>>>>>> nishi_20

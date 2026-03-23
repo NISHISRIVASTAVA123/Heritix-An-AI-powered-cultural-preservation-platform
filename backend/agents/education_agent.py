@@ -13,6 +13,7 @@ class EducationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
+<<<<<<< HEAD
     async def process(self, input_data: str) -> Dict[str, Any]:
         prompt = ChatPromptTemplate.from_template(
             """
@@ -29,6 +30,33 @@ class EducationAgent(BaseAgent):
         )
         chain = prompt | self.llm
         response = await chain.ainvoke({"text": input_data})
+=======
+    async def process(self, input_data: str, language: str = "en", **kwargs) -> Dict[str, Any]:
+        prompt = ChatPromptTemplate.from_template(
+            """
+            Generate educational content based on this cultural text: {text}
+            The original audio was spoken in the language code: {language}.
+            
+            Return the output in STRICT JSON format. Do not add any markdown formatting.
+            For each of the following sections, provide the text in English ("en"), Hindi ("hi"), and the original native language ("native").
+            (If the native language is English or Hindi, still provide it under the "native" key, identical to that language).
+            
+            The JSON MUST have the following structure exactly:
+            {{
+              "summary": {{ "en": "...", "hi": "...", "native": "..." }},
+              "lesson": {{ "en": "...", "hi": "...", "native": "..." }},
+              "moral": {{ "en": "...", "hi": "...", "native": "..." }},
+              "quiz_questions": {{
+                 "en": [ {{"question": "...", "answer": "..."}} ],
+                 "hi": [ {{"question": "...", "answer": "..."}} ],
+                 "native": [ {{"question": "...", "answer": "..."}} ]
+              }}
+            }}
+            """
+        )
+        chain = prompt | self.llm
+        response = await chain.ainvoke({"text": input_data, "language": language})
+>>>>>>> nishi_20
         
         import json
         try:

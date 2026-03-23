@@ -11,7 +11,11 @@ interface Record {
     contributor: string;
     transcript: string;
     audio_url?: string;
+<<<<<<< HEAD
     summary?: string;
+=======
+    summary?: string | { en?: string, hi?: string, native?: string };
+>>>>>>> nishi_20
     created_at: string;
 }
 

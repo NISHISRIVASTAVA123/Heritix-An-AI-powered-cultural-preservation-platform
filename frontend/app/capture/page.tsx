@@ -5,6 +5,10 @@ import RecordButton from '@/components/RecordButton';
 import ProcessingSteps from '@/components/ProcessingSteps';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+<<<<<<< HEAD
+=======
+import { useAuth } from '@clerk/nextjs';
+>>>>>>> nishi_20
 
 export default function CapturePage() {
     // State Machine
@@ -16,11 +20,32 @@ export default function CapturePage() {
     const [error, setError] = useState<string | null>(null);
     const [processingLogs, setProcessingLogs] = useState<any[]>([]);
 
+<<<<<<< HEAD
+=======
+    const { isSignedIn, isLoaded, getToken } = useAuth();
+>>>>>>> nishi_20
     const router = useRouter();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
 
+<<<<<<< HEAD
+=======
+    useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            router.push('/');
+        }
+    }, [isLoaded, isSignedIn, router]);
+
+    if (!isLoaded || !isSignedIn) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+>>>>>>> nishi_20
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -71,13 +96,28 @@ export default function CapturePage() {
         formData.append("consent", consent.toString());
 
         try {
+<<<<<<< HEAD
             const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
+=======
+            const token = await getToken();
+            const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
+                headers: { 
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
+                },
+>>>>>>> nishi_20
             });
             const id = uploadRes.data.record_id;
             setRecordId(id);
 
+<<<<<<< HEAD
             await axios.post(`http://localhost:8000/api/process/${id}`);
+=======
+            await axios.post(`http://localhost:8000/api/process/${id}`, {}, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+>>>>>>> nishi_20
             setStatus('processing');
         } catch (err: any) {
             console.error(err);
