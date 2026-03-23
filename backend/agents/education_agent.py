@@ -13,22 +13,31 @@ class EducationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str) -> Dict[str, Any]:
+    async def process(self, input_data: str, language: str = "en", **kwargs) -> Dict[str, Any]:
         prompt = ChatPromptTemplate.from_template(
             """
             Generate educational content based on this cultural text: {text}
+            The original audio was spoken in the language code: {language}.
             
-            Return the output in STRICT JSON format with the following keys:
-            - summary (str): A simplified summary.
-            - lesson (str): A short lesson derived from the text.
-            - moral (str): The moral or key takeaway.
-            - quiz_questions (list): 3 simple questions with answers.
+            Return the output in STRICT JSON format. Do not add any markdown formatting.
+            For each of the following sections, provide the text in English ("en"), Hindi ("hi"), and the original native language ("native").
+            (If the native language is English or Hindi, still provide it under the "native" key, identical to that language).
             
-            Do not add any markdown formatting.
+            The JSON MUST have the following structure exactly:
+            {{
+              "summary": {{ "en": "...", "hi": "...", "native": "..." }},
+              "lesson": {{ "en": "...", "hi": "...", "native": "..." }},
+              "moral": {{ "en": "...", "hi": "...", "native": "..." }},
+              "quiz_questions": {{
+                 "en": [ {{"question": "...", "answer": "..."}} ],
+                 "hi": [ {{"question": "...", "answer": "..."}} ],
+                 "native": [ {{"question": "...", "answer": "..."}} ]
+              }}
+            }}
             """
         )
         chain = prompt | self.llm
-        response = await chain.ainvoke({"text": input_data})
+        response = await chain.ainvoke({"text": input_data, "language": language})
         
         import json
         try:

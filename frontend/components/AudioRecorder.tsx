@@ -50,29 +50,29 @@ export default function AudioRecorder({ onAudioReady }: AudioRecorderProps) {
     };
 
     return (
-        <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-stone-300 rounded-xl bg-stone-50">
+        <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed border-outline-variant rounded-xl bg-surface-container-low">
             <div className="flex gap-4">
                 {!isRecording ? (
                     <button
                         onClick={startRecording}
-                        className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-all shadow-md"
+                        className="flex items-center gap-2 px-6 py-3 bg-error hover:bg-error-container text-on-error hover:text-on-error-container rounded-full font-semibold transition-all shadow-md"
                     >
-                        <span className="w-3 h-3 bg-white rounded-full animate-pulse" />
+                        <span className="w-3 h-3 bg-current rounded-full animate-pulse" />
                         Start Recording
                     </button>
                 ) : (
                     <button
                         onClick={stopRecording}
-                        className="flex items-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-900 text-white rounded-full font-semibold transition-all shadow-md"
+                        className="flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-secondary-container text-on-secondary hover:text-on-secondary-container rounded-full font-semibold transition-all shadow-md"
                     >
-                        <div className="w-3 h-3 bg-white rounded-sm" />
+                        <div className="w-3 h-3 bg-current rounded-sm" />
                         Stop Recording
                     </button>
                 )}
             </div>
 
             {isRecording && (
-                <div className="text-red-600 font-medium animate-pulse">
+                <div className="text-error font-medium animate-pulse">
                     Recording in progress...
                 </div>
             )}

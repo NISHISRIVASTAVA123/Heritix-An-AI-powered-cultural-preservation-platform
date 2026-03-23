@@ -11,7 +11,7 @@ interface Record {
     contributor: string;
     transcript: string;
     audio_url?: string;
-    summary?: string;
+    summary?: string | { en?: string, hi?: string, native?: string };
     created_at: string;
 }
 

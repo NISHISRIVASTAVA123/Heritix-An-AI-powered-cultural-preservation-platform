@@ -5,6 +5,7 @@ import RecordButton from '@/components/RecordButton';
 import ProcessingSteps from '@/components/ProcessingSteps';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
 export default function CapturePage() {
     // State Machine
@@ -16,10 +17,25 @@ export default function CapturePage() {
     const [error, setError] = useState<string | null>(null);
     const [processingLogs, setProcessingLogs] = useState<any[]>([]);
 
+    const { isSignedIn, isLoaded, getToken } = useAuth();
     const router = useRouter();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
+
+    useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            router.push('/');
+        }
+    }, [isLoaded, isSignedIn, router]);
+
+    if (!isLoaded || !isSignedIn) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     const startRecording = async () => {
         try {
@@ -71,13 +87,19 @@ export default function CapturePage() {
         formData.append("consent", consent.toString());
 
         try {
+            const token = await getToken();
             const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+                headers: { 
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
+                },
             });
             const id = uploadRes.data.record_id;
             setRecordId(id);
 
-            await axios.post(`http://localhost:8000/api/process/${id}`);
+            await axios.post(`http://localhost:8000/api/process/${id}`, {}, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
             setStatus('processing');
         } catch (err: any) {
             console.error(err);

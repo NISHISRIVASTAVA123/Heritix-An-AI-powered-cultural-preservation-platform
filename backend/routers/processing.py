@@ -148,7 +148,7 @@ async def process_record_task(record_id: str, audio_url: str):
 
         # 6. Education
         await log_stage(record_id, "education", "started")
-        edu_data = await agent_manager.process_education(transcript)
+        edu_data = await agent_manager.process_education(transcript, language)
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
             {"$set": {"education_data": edu_data}}
