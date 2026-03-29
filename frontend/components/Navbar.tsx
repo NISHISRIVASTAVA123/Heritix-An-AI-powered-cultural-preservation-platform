@@ -5,19 +5,13 @@ import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-<<<<<<< HEAD
-=======
 import { SignInButton, UserButton, useAuth } from '@clerk/nextjs';
->>>>>>> nishi_20
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-<<<<<<< HEAD
-=======
   const { isSignedIn, isLoaded } = useAuth();
->>>>>>> nishi_20
 
   useEffect(() => {
     setMounted(true);
@@ -31,7 +25,7 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 bg-[#faf9f4]/80 dark:bg-[#1b1c19]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] flex justify-between items-center px-8 py-6 max-w-none">
       <div className="flex items-center gap-2">
         <Link href="/">
-          <span className="text-2xl font-bold tracking-tight text-[#154212] dark:text-[#d0e8c2]">FolkLore AI</span>
+          <span className="text-2xl font-bold tracking-tight text-[#154212] dark:text-[#d0e8c2]">Heritix</span>
         </Link>
       </div>
       <div className="hidden md:flex items-center gap-2">
@@ -73,8 +67,6 @@ export default function Navbar() {
             <div className="w-5 h-5" />
           )}
         </button>
-<<<<<<< HEAD
-=======
 
         {!isSignedIn && isLoaded && (
           <SignInButton mode="modal">
@@ -87,7 +79,6 @@ export default function Navbar() {
         {isSignedIn && isLoaded && (
           <UserButton afterSwitchSessionUrl="/" appearance={{ elements: { avatarBox: "w-9 h-9 border border-[#154212]/20 dark:border-[#d0e8c2]/20 shadow-sm" } }} />
         )}
->>>>>>> nishi_20
       </div>
     </nav>
   );

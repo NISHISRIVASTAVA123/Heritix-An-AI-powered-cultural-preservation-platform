@@ -6,15 +6,24 @@ from db.mongo import db
 from models.knowledge_model import KnowledgeMetadata, KnowledgeContent, ProcessingLog, ProcessingStatus
 from datetime import datetime
 import uuid
-from werkzeug.utils import secure_filename
-import aiofiles
 import os
 
 router = APIRouter()
 agent_manager = AgentManager()
 
 MAX_FILE_SIZE = 25 * 1024 * 1024 # 25MB
-ALLOWED_TYPES = ["audio/mpeg", "audio/wav", "audio/x-wav", "audio/mp4", "audio/webm", "audio/ogg"]
+# Base MIME types (strip codec suffix like ';codecs=opus' before checking)
+ALLOWED_BASE_TYPES = {"audio/mpeg", "audio/wav", "audio/x-wav", "audio/mp4", "audio/webm", "audio/ogg"}
+
+# Map base MIME to a safe file extension for Whisper/ffmpeg
+MIME_TO_EXT = {
+    "audio/webm": "webm",
+    "audio/ogg":  "ogg",
+    "audio/mpeg": "mp3",
+    "audio/mp4":  "mp4",
+    "audio/wav":  "wav",
+    "audio/x-wav":"wav",
+}
 
 async def log_stage(knowledge_id: str, stage: str, status: str, error: str = None):
     """Helper to write to processing_logs collection"""
@@ -33,21 +42,23 @@ async def upload_audio(
     contributor: str = Form("Anonymous"), 
     consent: bool = Form(False)
 ):
-    # 1. Consent Check (Hardened)
+    # 1. Consent Check
     if not consent:
         raise HTTPException(status_code=400, detail="User consent is required to process audio.")
 
-    # 2. Validation
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(status_code=400, detail=f"Invalid file type. Allowed: {ALLOWED_TYPES}")
-    
+    # 2. Validation — strip codec suffix (e.g. 'audio/webm;codecs=opus' -> 'audio/webm')
+    base_type = (file.content_type or "").split(";")[0].strip().lower()
+    if base_type not in ALLOWED_BASE_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid file type '{file.content_type}'. Allowed base types: {sorted(ALLOWED_BASE_TYPES)}")
+
     content = await file.read()
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail=f"File too large. Limit: {MAX_FILE_SIZE/1024/1024}MB")
 
-    # 3. Save file (Sanitized)
-    safe_filename = secure_filename(file.filename)
-    filename = f"{uuid.uuid4()}_{safe_filename}"
+    # 3. Save file with the correct extension derived from MIME type (not the client filename)
+    #    This is critical so ffmpeg / Whisper can detect the container format.
+    ext = MIME_TO_EXT.get(base_type, "webm")
+    filename = f"{uuid.uuid4()}_recording.{ext}"
     audio_url = await audio_service.upload_audio(content, filename)
     
     # 4. Create Metadata Record
@@ -57,7 +68,7 @@ async def upload_audio(
         "title": f"Recording {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}",
         "processing_status": ProcessingStatus.UPLOADED,
         "audio_url": audio_url,
-        "original_filename": safe_filename,
+        "original_filename": filename,
         "contributor": contributor,
         "consent": consent,
         "created_at": datetime.utcnow(),
@@ -81,15 +92,14 @@ async def process_record_task(record_id: str, audio_url: str):
         print(f"Starting pipeline for {record_id}")
         await log_stage(record_id, "pipeline_start", "success")
         
-        # 1. Retrieve Audio
+        # 1. Locate audio file
         filename = audio_url.split("/")[-1]
         file_path = os.path.join("uploads", filename)
-        async with aiofiles.open(file_path, "rb") as f:
-            audio_content = await f.read()
 
-        # 2. STT
+        # 2. STT — pass the file path directly so Whisper/ffmpeg reads the
+        #    correct container format from the file extension (.webm, .ogg …)
         await log_stage(record_id, "stt", "started")
-        stt_result = await stt_service.transcribe(audio_content)
+        stt_result = await stt_service.transcribe(file_path)
         transcript = stt_result["text"].strip()
         
         if not transcript:
@@ -148,11 +158,7 @@ async def process_record_task(record_id: str, audio_url: str):
 
         # 6. Education
         await log_stage(record_id, "education", "started")
-<<<<<<< HEAD
-        edu_data = await agent_manager.process_education(transcript)
-=======
         edu_data = await agent_manager.process_education(transcript, language)
->>>>>>> nishi_20
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
             {"$set": {"education_data": edu_data}}

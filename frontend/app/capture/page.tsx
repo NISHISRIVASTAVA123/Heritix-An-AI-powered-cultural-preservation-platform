@@ -5,10 +5,7 @@ import RecordButton from '@/components/RecordButton';
 import ProcessingSteps from '@/components/ProcessingSteps';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-<<<<<<< HEAD
-=======
 import { useAuth } from '@clerk/nextjs';
->>>>>>> nishi_20
 
 export default function CapturePage() {
     // State Machine
@@ -20,22 +17,58 @@ export default function CapturePage() {
     const [error, setError] = useState<string | null>(null);
     const [processingLogs, setProcessingLogs] = useState<any[]>([]);
 
-<<<<<<< HEAD
-=======
     const { isSignedIn, isLoaded, getToken } = useAuth();
->>>>>>> nishi_20
     const router = useRouter();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
 
-<<<<<<< HEAD
-=======
     useEffect(() => {
         if (isLoaded && !isSignedIn) {
             router.push('/');
         }
     }, [isLoaded, isSignedIn, router]);
+
+    // POLLING EFFECT — must live here (before early return) so hooks are always called in the same order
+    useEffect(() => {
+        if (status !== 'processing' || !recordId) return;
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const interval = setInterval(async () => {
+            if (cancelled) return;
+            try {
+                const res = await axios.get(`http://localhost:8000/api/status/${recordId}`, {
+                    signal: controller.signal,
+                });
+                const data = res.data;
+
+                if (cancelled) return;
+                setProcessingLogs(data.logs || []);
+
+                if (data.status?.toLowerCase() === 'completed') {
+                    clearInterval(interval);
+                    router.push(`/archive/${recordId}`);
+                } else if (data.status?.toLowerCase() === 'failed') {
+                    const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
+                    const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
+                    setError(errorMsg);
+                    setStatus('review');
+                    clearInterval(interval);
+                }
+            } catch (e: any) {
+                if (axios.isCancel(e) || e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED') return;
+                console.error("Polling error", e);
+            }
+        }, 2000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+            controller.abort();
+        };
+    }, [status, recordId, router]);
 
     if (!isLoaded || !isSignedIn) {
         return (
@@ -45,11 +78,23 @@ export default function CapturePage() {
         );
     }
 
->>>>>>> nishi_20
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
+
+            // Pick the best supported format — browsers don't record real WAV
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                ? 'audio/webm;codecs=opus'
+                : MediaRecorder.isTypeSupported('audio/webm')
+                ? 'audio/webm'
+                : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+                ? 'audio/ogg;codecs=opus'
+                : '';
+
+            const mediaRecorder = mimeType
+                ? new MediaRecorder(stream, { mimeType })
+                : new MediaRecorder(stream);
+
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
@@ -58,7 +103,8 @@ export default function CapturePage() {
             };
 
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
+                const actualMime = mediaRecorder.mimeType || 'audio/webm';
+                const blob = new Blob(chunksRef.current, { type: actualMime });
                 setAudioBlob(blob);
                 setStatus('review');
                 stream.getTracks().forEach(track => track.stop());
@@ -90,34 +136,30 @@ export default function CapturePage() {
         if (!audioBlob) return;
         setStatus('uploading');
 
+        // Derive the correct file extension from the blob MIME type
+        const mimeType = audioBlob.type || 'audio/webm';
+        const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const filename = `recording.${ext}`;
+
         const formData = new FormData();
-        formData.append("file", audioBlob, "recording.wav");
+        formData.append("file", audioBlob, filename);
         formData.append("contributor", contributor);
         formData.append("consent", consent.toString());
 
         try {
-<<<<<<< HEAD
-            const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-=======
             const token = await getToken();
             const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
-                headers: { 
+                headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`
                 },
->>>>>>> nishi_20
             });
             const id = uploadRes.data.record_id;
             setRecordId(id);
 
-<<<<<<< HEAD
-            await axios.post(`http://localhost:8000/api/process/${id}`);
-=======
             await axios.post(`http://localhost:8000/api/process/${id}`, {}, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
->>>>>>> nishi_20
             setStatus('processing');
         } catch (err: any) {
             console.error(err);
@@ -126,35 +168,6 @@ export default function CapturePage() {
         }
     };
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-
-        if (status === 'processing' && recordId) {
-            interval = setInterval(async () => {
-                try {
-                    const res = await axios.get(`http://localhost:8000/api/status/${recordId}`);
-                    const data = res.data;
-
-                    setProcessingLogs(data.logs || []);
-
-                    // Backend returns 'completed' or 'COMPLETED' (robust check)
-                    if (data.status?.toLowerCase() === 'completed') {
-                        clearInterval(interval);
-                        router.push(`/archive/${recordId}`);
-                    } else if (data.status?.toLowerCase() === 'failed') {
-                        const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
-                        const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
-                        setError(errorMsg);
-                        setStatus('review');
-                        clearInterval(interval);
-                    }
-                } catch (e) {
-                    console.error("Polling error", e);
-                }
-            }, 2000);
-        }
-        return () => clearInterval(interval);
-    }, [status, recordId, router]);
 
     const steps = [
         { id: 'upload', label: 'Upload', description: 'Securely saving audio', status: processingLogs.find(l => l.stage === 'upload')?.status === 'success' ? 'completed' : 'pending' },
@@ -231,7 +244,7 @@ export default function CapturePage() {
             {status === 'review' && (
                 <section className="w-full flex flex-col items-center animate-in slide-in-from-bottom duration-500 max-w-2xl">
                     <audio ref={audioPlayerRef} className="hidden" controls />
-                    
+
                     <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] border border-surface-container text-left w-full mb-8">
                         <h3 className="text-2xl font-bold font-headline text-primary mb-6">Review & Submit</h3>
 
