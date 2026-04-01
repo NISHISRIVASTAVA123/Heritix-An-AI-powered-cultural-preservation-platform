@@ -27,6 +27,7 @@ class KnowledgeMetadata(KnowledgeBase):
     original_filename: Optional[str] = None
     detected_language: Optional[str] = None
     category: Optional[str] = None # Kept in metadata for easy filtering
+    processing_error: Optional[str] = None
     
     processing_status: ProcessingStatus = Field(default=ProcessingStatus.UPLOADED)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

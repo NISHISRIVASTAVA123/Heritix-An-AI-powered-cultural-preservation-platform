@@ -5,32 +5,32 @@ import RecordButton from '@/components/RecordButton';
 import ProcessingSteps from '@/components/ProcessingSteps';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-<<<<<<< HEAD
-=======
 import { useAuth } from '@clerk/nextjs';
->>>>>>> nishi_20
+
+const MIN_AUDIO_BYTES = 2048;
+const MIN_AUDIO_DURATION_SECONDS = 1;
+
+type ProcessingLogEntry = {
+    stage: string;
+    status: string;
+    error?: string | null;
+};
 
 export default function CapturePage() {
-    // State Machine
-    const [status, setStatus] = useState<'idle' | 'recording' | 'review' | 'uploading' | 'processing'>('idle');
+    const [status, setStatus] = useState<'idle' | 'recording' | 'review' | 'uploading' | 'processing' | 'failed'>('idle');
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const [contributor, setContributor] = useState("Anonymous");
     const [consent, setConsent] = useState(false);
     const [recordId, setRecordId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [processingLogs, setProcessingLogs] = useState<any[]>([]);
+    const [processingLogs, setProcessingLogs] = useState<ProcessingLogEntry[]>([]);
 
-<<<<<<< HEAD
-=======
     const { isSignedIn, isLoaded, getToken } = useAuth();
->>>>>>> nishi_20
     const router = useRouter();
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
 
-<<<<<<< HEAD
-=======
     useEffect(() => {
         if (isLoaded && !isSignedIn) {
             router.push('/');
@@ -45,7 +45,48 @@ export default function CapturePage() {
         );
     }
 
->>>>>>> nishi_20
+    const resetCaptureFlow = () => {
+        setAudioBlob(null);
+        setRecordId(null);
+        setProcessingLogs([]);
+        setError(null);
+        setConsent(false);
+        setStatus('idle');
+    };
+
+    const getAudioDuration = (blob: Blob) =>
+        new Promise<number>((resolve, reject) => {
+            const objectUrl = URL.createObjectURL(blob);
+            const audio = document.createElement('audio');
+
+            audio.preload = 'metadata';
+            audio.onloadedmetadata = () => {
+                const duration = audio.duration;
+                URL.revokeObjectURL(objectUrl);
+                if (!Number.isFinite(duration)) {
+                    reject(new Error('Audio duration could not be read.'));
+                    return;
+                }
+                resolve(duration);
+            };
+            audio.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('Audio recording could not be validated.'));
+            };
+            audio.src = objectUrl;
+        });
+
+    const validateRecordedAudio = async (blob: Blob) => {
+        if (blob.size < MIN_AUDIO_BYTES) {
+            throw new Error("The recording looks empty. Please record a longer clip and try again.");
+        }
+
+        const duration = await getAudioDuration(blob);
+        if (duration < MIN_AUDIO_DURATION_SECONDS) {
+            throw new Error("The recording is too short. Please record at least a short sentence.");
+        }
+    };
+
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -59,9 +100,20 @@ export default function CapturePage() {
 
             mediaRecorder.onstop = () => {
                 const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
-                setAudioBlob(blob);
-                setStatus('review');
                 stream.getTracks().forEach(track => track.stop());
+                setError(null);
+
+                void (async () => {
+                    try {
+                        await validateRecordedAudio(blob);
+                        setAudioBlob(blob);
+                        setStatus('review');
+                    } catch (validationError) {
+                        setAudioBlob(null);
+                        setStatus('idle');
+                        setError(validationError instanceof Error ? validationError.message : "The recording could not be used. Please try again.");
+                    }
+                })();
             };
 
             mediaRecorder.start();
@@ -88,40 +140,38 @@ export default function CapturePage() {
 
     const handleUpload = async () => {
         if (!audioBlob) return;
-        setStatus('uploading');
-
-        const formData = new FormData();
-        formData.append("file", audioBlob, "recording.wav");
-        formData.append("contributor", contributor);
-        formData.append("consent", consent.toString());
 
         try {
-<<<<<<< HEAD
-            const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-=======
+            await validateRecordedAudio(audioBlob);
+            setStatus('uploading');
+
+            const formData = new FormData();
+            formData.append("file", audioBlob, "recording.wav");
+            formData.append("contributor", contributor);
+            formData.append("consent", consent.toString());
+
             const token = await getToken();
             const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
-                headers: { 
+                headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`
                 },
->>>>>>> nishi_20
             });
             const id = uploadRes.data.record_id;
             setRecordId(id);
 
-<<<<<<< HEAD
-            await axios.post(`http://localhost:8000/api/process/${id}`);
-=======
             await axios.post(`http://localhost:8000/api/process/${id}`, {}, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
->>>>>>> nishi_20
             setStatus('processing');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            setError(err.response?.data?.detail || "Upload failed.");
+            const uploadError = axios.isAxiosError(err)
+                ? err.response?.data?.detail || "Upload failed."
+                : err instanceof Error
+                    ? err.message
+                    : "Upload failed.";
+            setError(uploadError);
             setStatus('review');
         }
     };
@@ -137,16 +187,15 @@ export default function CapturePage() {
 
                     setProcessingLogs(data.logs || []);
 
-                    // Backend returns 'completed' or 'COMPLETED' (robust check)
                     if (data.status?.toLowerCase() === 'completed') {
                         clearInterval(interval);
                         router.push(`/archive/${recordId}`);
                     } else if (data.status?.toLowerCase() === 'failed') {
-                        const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
-                        const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
+                        const pipelineLog = data.logs?.find((log: ProcessingLogEntry) => log.stage === 'pipeline' && log.status === 'failed');
+                        const errorMsg = data.metadata?.processing_error || pipelineLog?.error || "It looks like the audio wasn't recorded properly or was empty. Please try recording again.";
                         setError(errorMsg);
-                        setStatus('review');
                         clearInterval(interval);
+                        setStatus('failed');
                     }
                 } catch (e) {
                     console.error("Polling error", e);
@@ -157,22 +206,21 @@ export default function CapturePage() {
     }, [status, recordId, router]);
 
     const steps = [
-        { id: 'upload', label: 'Upload', description: 'Securely saving audio', status: processingLogs.find(l => l.stage === 'upload')?.status === 'success' ? 'completed' : 'pending' },
-        { id: 'stt', label: 'Speech to Text', description: 'Converting speech to text', status: processingLogs.find(l => l.stage === 'stt')?.status === 'success' ? 'completed' : processingLogs.find(l => l.stage === 'stt')?.status === 'started' ? 'processing' : 'pending' },
-        { id: 'analysis', label: 'Understanding Knowledge', description: 'Extracting wisdom & context', status: processingLogs.find(l => l.stage === 'education')?.status === 'success' ? 'completed' : processingLogs.find(l => l.stage === 'extraction')?.status === 'started' ? 'processing' : 'pending' },
-        { id: 'archive', label: 'Preserving Culture', description: 'Preserving for future', status: status === 'processing' && processingLogs.find(l => l.stage === 'pipeline')?.status === 'completed' ? 'completed' : 'pending' },
+        { id: 'upload', label: 'Upload', description: 'Securely saving audio', status: processingLogs.find(log => log.stage === 'upload')?.status === 'success' ? 'completed' : 'pending' },
+        { id: 'stt', label: 'Speech to Text', description: 'Converting speech to text', status: processingLogs.find(log => log.stage === 'stt')?.status === 'success' ? 'completed' : processingLogs.find(log => log.stage === 'stt')?.status === 'started' ? 'processing' : 'pending' },
+        { id: 'analysis', label: 'Understanding Knowledge', description: 'Extracting wisdom & context', status: processingLogs.find(log => log.stage === 'education')?.status === 'success' ? 'completed' : processingLogs.find(log => log.stage === 'extraction')?.status === 'started' ? 'processing' : 'pending' },
+        { id: 'archive', label: 'Preserving Culture', description: 'Preserving for future', status: status === 'processing' && processingLogs.find(log => log.stage === 'pipeline')?.status === 'completed' ? 'completed' : 'pending' },
     ];
 
-    const mapStepStatus = (s: string) => {
-        if (s === 'completed') return 'completed';
-        if (s === 'processing') return 'processing';
-        if (s === 'failed') return 'failed';
+    const mapStepStatus = (stepStatus: string) => {
+        if (stepStatus === 'completed') return 'completed';
+        if (stepStatus === 'processing') return 'processing';
+        if (stepStatus === 'failed') return 'failed';
         return 'pending';
     };
 
     return (
         <div className="min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center max-w-5xl mx-auto text-center w-full">
-            {/* Header */}
             {['idle', 'recording', 'review'].includes(status) && (
                 <header className="mb-16 space-y-4 max-w-2xl">
                     <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-primary">Capture the Oral History</h1>
@@ -194,13 +242,40 @@ export default function CapturePage() {
                 </div>
             )}
 
-            {error && (
+            {status === 'failed' && (
+                <section className="w-full max-w-2xl animate-in slide-in-from-bottom duration-500">
+                    <div className="bg-error-container text-error rounded-2xl border border-error/20 p-8 shadow-[0_20px_40px_rgba(27,28,25,0.06)]">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-error/10 mb-6">
+                            <span className="material-symbols-outlined text-4xl">error</span>
+                        </div>
+                        <h2 className="text-3xl font-headline font-extrabold mb-4">Recording could not be processed</h2>
+                        <p className="text-base leading-relaxed mb-8">
+                            {error || "It looks like the audio wasn't recorded properly or was empty. Please try recording again."}
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button
+                                onClick={resetCaptureFlow}
+                                className="px-8 py-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                            >
+                                Try Recording Again
+                            </button>
+                            <button
+                                onClick={() => setStatus('review')}
+                                className="px-8 py-4 rounded-full bg-surface-container-high text-on-surface font-headline font-bold transition-all duration-300 hover:bg-surface-variant"
+                            >
+                                Review Last Recording
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {error && status !== 'failed' && (
                 <div className="bg-error-container text-error p-4 rounded-xl mb-8 border border-error/20 max-w-2xl w-full">
                     {error}
                 </div>
             )}
 
-            {/* VIEWS */}
             {['idle', 'recording'].includes(status) && (
                 <section className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
                     <RecordButton
@@ -208,7 +283,6 @@ export default function CapturePage() {
                         onClick={status === 'recording' ? stopRecording : startRecording}
                     />
 
-                    {/* Hint Text */}
                     <div className="mb-12">
                         <p className="font-headline font-semibold text-xl text-secondary italic">
                             "You may speak in any language or dialect."
@@ -231,7 +305,7 @@ export default function CapturePage() {
             {status === 'review' && (
                 <section className="w-full flex flex-col items-center animate-in slide-in-from-bottom duration-500 max-w-2xl">
                     <audio ref={audioPlayerRef} className="hidden" controls />
-                    
+
                     <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] border border-surface-container text-left w-full mb-8">
                         <h3 className="text-2xl font-bold font-headline text-primary mb-6">Review & Submit</h3>
 
@@ -261,7 +335,7 @@ export default function CapturePage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
-                        <button onClick={() => setStatus('idle')} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-surface-container-high text-on-surface font-headline font-bold hover:bg-surface-variant transition-all duration-300">
+                        <button onClick={resetCaptureFlow} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-surface-container-high text-on-surface font-headline font-bold hover:bg-surface-variant transition-all duration-300">
                             <span className="material-symbols-outlined">replay</span> Retry
                         </button>
                         <button onClick={playRecording} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-secondary-fixed text-on-secondary-fixed font-headline font-bold shadow-md hover:bg-secondary-container transition-all duration-300 hover:scale-105">
@@ -276,7 +350,7 @@ export default function CapturePage() {
 
             {['uploading', 'processing'].includes(status) && (
                 <div className="w-full">
-                    <ProcessingSteps steps={steps.map(s => ({ ...s, status: mapStepStatus(s.status) })) as any} />
+                    <ProcessingSteps steps={steps.map(step => ({ ...step, status: mapStepStatus(step.status) }))} />
                     <div className="pt-8">
                         <button onClick={() => setStatus('review')} className="px-8 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label font-medium hover:bg-surface-container-high transition-all duration-300 active:scale-95">
                             Cancel Processing
@@ -285,7 +359,6 @@ export default function CapturePage() {
                 </div>
             )}
 
-            {/* Decorative Info Card (Bento-style) */}
             {['idle', 'recording'].includes(status) && (
                 <section className="mt-24 grid md:grid-cols-2 gap-8 w-full max-w-4xl text-left">
                     <div className="bg-surface-container-low p-10 rounded-lg space-y-4">

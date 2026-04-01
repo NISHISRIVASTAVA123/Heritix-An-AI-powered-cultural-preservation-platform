@@ -13,24 +13,6 @@ class EducationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-<<<<<<< HEAD
-    async def process(self, input_data: str) -> Dict[str, Any]:
-        prompt = ChatPromptTemplate.from_template(
-            """
-            Generate educational content based on this cultural text: {text}
-            
-            Return the output in STRICT JSON format with the following keys:
-            - summary (str): A simplified summary.
-            - lesson (str): A short lesson derived from the text.
-            - moral (str): The moral or key takeaway.
-            - quiz_questions (list): 3 simple questions with answers.
-            
-            Do not add any markdown formatting.
-            """
-        )
-        chain = prompt | self.llm
-        response = await chain.ainvoke({"text": input_data})
-=======
     async def process(self, input_data: str, language: str = "en", **kwargs) -> Dict[str, Any]:
         prompt = ChatPromptTemplate.from_template(
             """
@@ -56,7 +38,6 @@ class EducationAgent(BaseAgent):
         )
         chain = prompt | self.llm
         response = await chain.ainvoke({"text": input_data, "language": language})
->>>>>>> nishi_20
         
         import json
         try:

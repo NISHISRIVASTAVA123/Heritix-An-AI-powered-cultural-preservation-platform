@@ -9,11 +9,7 @@ interface KnowledgeCardProps {
     contributor: string;
     date: string;
     audioUrl?: string;
-<<<<<<< HEAD
-    summary?: string;
-=======
     summary?: string | { en?: string, hi?: string, native?: string };
->>>>>>> nishi_20
 }
 
 export default function KnowledgeCard({ id, title, category, contributor, date, audioUrl, summary }: KnowledgeCardProps) {
@@ -60,10 +56,7 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
     }
 
     const formattedDate = new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
-<<<<<<< HEAD
-=======
     const displaySummary = typeof summary === 'string' ? summary : (summary?.en || summary?.native || '');
->>>>>>> nishi_20
 
     return (
         <TiltedCard>
@@ -81,11 +74,7 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
                     <img className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm pointer-events-none" alt={title} src={imgUrl} />
                     <h3 className="text-2xl font-bold font-headline text-on-surface mb-3 leading-tight">{title}</h3>
                     <p className="text-on-surface-variant font-body leading-relaxed line-clamp-2">
-<<<<<<< HEAD
-                        {summary}
-=======
                         {displaySummary}
->>>>>>> nishi_20
                     </p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-on-surface-variant/70 font-semibold">
                         <span className="material-symbols-outlined text-sm">person</span>

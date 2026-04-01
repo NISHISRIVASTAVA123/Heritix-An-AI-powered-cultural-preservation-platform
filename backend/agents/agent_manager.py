@@ -10,17 +10,10 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 # Helper for Retry Logic
 # Retries 3 times, waiting 2s, 4s, 8s...
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-<<<<<<< HEAD
-async def execute_agent_scan(agent: BaseAgent, text: str) -> Dict[str, Any]:
-    """Execute an agent's process method with retry logic"""
-    try:
-        return await agent.process(text)
-=======
 async def execute_agent_scan(agent: BaseAgent, text: str, **kwargs) -> Dict[str, Any]:
     """Execute an agent's process method with retry logic"""
     try:
         return await agent.process(text, **kwargs)
->>>>>>> nishi_20
     except Exception as e:
         print(f"Agent {agent.name} failed (attempting retry): {e}")
         raise e
@@ -52,15 +45,9 @@ class AgentManager:
             return await execute_agent_scan(self.agents["context"], text)
         return {}
 
-<<<<<<< HEAD
-    async def process_education(self, text: str) -> Dict[str, Any]:
-        if "education" in self.agents:
-            return await execute_agent_scan(self.agents["education"], text)
-=======
     async def process_education(self, text: str, language: str = "en") -> Dict[str, Any]:
         if "education" in self.agents:
             return await execute_agent_scan(self.agents["education"], text, language=language)
->>>>>>> nishi_20
         return {}
 
     async def process_translation(self, text: str) -> Dict[str, str]:

@@ -11,11 +11,7 @@ interface Record {
     contributor: string;
     transcript: string;
     audio_url?: string;
-<<<<<<< HEAD
-    summary?: string;
-=======
     summary?: string | { en?: string, hi?: string, native?: string };
->>>>>>> nishi_20
     created_at: string;
 }
 
@@ -62,9 +58,9 @@ export default function ArchivePage() {
                 <div className="flex flex-col md:flex-row gap-4 items-center bg-surface-container-low p-4 rounded-xl shadow-sm border border-surface-container-high relative z-10">
                     <div className="relative flex-1 w-full">
                         <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-outline">search</span>
-                        <input 
-                            className="w-full bg-surface-container-highest border-none rounded-full py-4 pl-16 pr-6 focus:ring-2 focus:ring-primary-container font-body text-on-surface placeholder:text-outline-variant outline-none transition-shadow" 
-                            placeholder="Search the Archive" 
+                        <input
+                            className="w-full bg-surface-container-highest border-none rounded-full py-4 pl-16 pr-6 focus:ring-2 focus:ring-primary-container font-body text-on-surface placeholder:text-outline-variant outline-none transition-shadow"
+                            placeholder="Search the Archive"
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -72,29 +68,29 @@ export default function ArchivePage() {
                     </div>
                     <div className="flex gap-4 w-full md:w-auto relative">
                         <div className="relative w-full md:w-64">
-                            <button 
+                            <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="flex items-center justify-between w-full bg-surface-container-highest border-none rounded-full py-4 px-8 font-headline text-sm font-bold text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer"
                             >
                                 <span className="truncate">{selectedCategory === 'Category' ? 'All Categories' : selectedCategory}</span>
                                 <span className="material-symbols-outlined text-primary ml-2">expand_more</span>
                             </button>
-                            
+
                             {isDropdownOpen && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)}></div>
                                     <div className="absolute top-full right-0 mt-2 w-full min-w-[200px] bg-surface-container rounded-2xl shadow-xl border border-outline-variant/20 transition-all duration-300 z-50 overflow-hidden">
                                         <div className="py-2 max-h-64 overflow-y-auto">
                                             {categories.map(c => (
-                                                <button 
+                                                <button
                                                     key={c}
                                                     onClick={() => {
                                                         setSelectedCategory(c);
                                                         setIsDropdownOpen(false);
                                                     }}
                                                     className={`w-full text-left block px-6 py-3 text-sm font-headline font-semibold transition-colors
-                                                        ${selectedCategory === c 
-                                                            ? 'bg-primary/10 text-primary' 
+                                                        ${selectedCategory === c
+                                                            ? 'bg-primary/10 text-primary'
                                                             : 'text-on-surface-variant hover:bg-primary/10 hover:text-primary'
                                                         }
                                                     `}

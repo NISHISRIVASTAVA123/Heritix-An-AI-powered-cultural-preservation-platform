@@ -14,6 +14,8 @@ router = APIRouter()
 agent_manager = AgentManager()
 
 MAX_FILE_SIZE = 25 * 1024 * 1024 # 25MB
+MIN_FILE_SIZE = 2048
+MIN_TRANSCRIPT_WORDS = 3
 ALLOWED_TYPES = ["audio/mpeg", "audio/wav", "audio/x-wav", "audio/mp4", "audio/webm", "audio/ogg"]
 
 async def log_stage(knowledge_id: str, stage: str, status: str, error: str = None):
@@ -42,6 +44,8 @@ async def upload_audio(
         raise HTTPException(status_code=400, detail=f"Invalid file type. Allowed: {ALLOWED_TYPES}")
     
     content = await file.read()
+    if len(content) < MIN_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="Audio recording is too short or empty. Please record a longer clip and try again.")
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail=f"File too large. Limit: {MAX_FILE_SIZE/1024/1024}MB")
 
@@ -91,9 +95,12 @@ async def process_record_task(record_id: str, audio_url: str):
         await log_stage(record_id, "stt", "started")
         stt_result = await stt_service.transcribe(audio_content)
         transcript = stt_result["text"].strip()
-        
+        transcript_word_count = len(transcript.split())
+
         if not transcript:
             raise ValueError("No speech detected in the recording. Please speak clearly and try again.")
+        if transcript_word_count < MIN_TRANSCRIPT_WORDS:
+            raise ValueError("The recording was too short to understand. Please record at least a short sentence and try again.")
             
         language = stt_result["language"]
         
@@ -148,11 +155,7 @@ async def process_record_task(record_id: str, audio_url: str):
 
         # 6. Education
         await log_stage(record_id, "education", "started")
-<<<<<<< HEAD
-        edu_data = await agent_manager.process_education(transcript)
-=======
         edu_data = await agent_manager.process_education(transcript, language)
->>>>>>> nishi_20
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
             {"$set": {"education_data": edu_data}}
@@ -177,6 +180,7 @@ async def process_record_task(record_id: str, audio_url: str):
             {"_id": record_id},
             {"$set": {
                 "processing_status": ProcessingStatus.COMPLETED,
+                "processing_error": None,
                 "updated_at": datetime.utcnow()
             }}
         )
@@ -184,15 +188,17 @@ async def process_record_task(record_id: str, audio_url: str):
         print(f"Pipeline finished for {record_id}")
 
     except Exception as e:
+        error_message = str(e)
         print(f"Pipeline failed for {record_id}: {e}")
         await db.db.knowledge.update_one(
             {"_id": record_id},
             {"$set": {
                 "processing_status": ProcessingStatus.FAILED,
+                "processing_error": error_message,
                 "updated_at": datetime.utcnow()
             }}
         )
-        await log_stage(record_id, "pipeline", "failed", str(e))
+        await log_stage(record_id, "pipeline", "failed", error_message)
 
 @router.post("/process/{record_id}")
 async def start_processing(record_id: str, background_tasks: BackgroundTasks):
@@ -204,6 +210,7 @@ async def start_processing(record_id: str, background_tasks: BackgroundTasks):
         {"_id": record_id},
         {"$set": {
             "processing_status": ProcessingStatus.PROCESSING,
+            "processing_error": None,
             "updated_at": datetime.utcnow()
         }}
     )
@@ -230,7 +237,8 @@ async def get_status(record_id: str):
             "title": metadata.get("title"),
             "language": metadata.get("detected_language"),
             "category": metadata.get("category"),
-            "transcript_preview": (metadata.get("transcript") or "")[:100]
+            "transcript_preview": (metadata.get("transcript") or "")[:100],
+            "processing_error": metadata.get("processing_error")
         },
         "logs": [
             {

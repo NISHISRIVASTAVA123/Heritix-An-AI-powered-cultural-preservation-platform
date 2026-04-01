@@ -1,4 +1,11 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+
+from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+BACKEND_ENV_FILE = Path(__file__).resolve().parent / ".env"
+
 
 class Settings(BaseSettings):
     APP_NAME: str = "Heritix API"
@@ -6,9 +13,13 @@ class Settings(BaseSettings):
     DB_NAME: str = "heritix_db"
     GROQ_API_KEY: str
     HUGGINGFACEHUB_API_TOKEN: str
+    CLERK_SECRET_KEY: SecretStr
 
-    
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=BACKEND_ENV_FILE,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
 
 settings = Settings()
