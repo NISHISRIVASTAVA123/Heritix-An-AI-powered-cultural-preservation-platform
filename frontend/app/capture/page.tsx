@@ -7,15 +7,6 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
-const MIN_AUDIO_BYTES = 2048;
-const MIN_AUDIO_DURATION_SECONDS = 1;
-
-type ProcessingLogEntry = {
-    stage: string;
-    status: string;
-    error?: string | null;
-};
-
 export default function CapturePage() {
     const [status, setStatus] = useState<'idle' | 'recording' | 'review' | 'uploading' | 'processing' | 'failed'>('idle');
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -37,6 +28,47 @@ export default function CapturePage() {
         }
     }, [isLoaded, isSignedIn, router]);
 
+    // POLLING EFFECT — must live here (before early return) so hooks are always called in the same order
+    useEffect(() => {
+        if (status !== 'processing' || !recordId) return;
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const interval = setInterval(async () => {
+            if (cancelled) return;
+            try {
+                const res = await axios.get(`http://localhost:8000/api/status/${recordId}`, {
+                    signal: controller.signal,
+                });
+                const data = res.data;
+
+                if (cancelled) return;
+                setProcessingLogs(data.logs || []);
+
+                if (data.status?.toLowerCase() === 'completed') {
+                    clearInterval(interval);
+                    router.push(`/archive/${recordId}`);
+                } else if (data.status?.toLowerCase() === 'failed') {
+                    const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
+                    const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
+                    setError(errorMsg);
+                    setStatus('review');
+                    clearInterval(interval);
+                }
+            } catch (e: any) {
+                if (axios.isCancel(e) || e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED') return;
+                console.error("Polling error", e);
+            }
+        }, 2000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(interval);
+            controller.abort();
+        };
+    }, [status, recordId, router]);
+
     if (!isLoaded || !isSignedIn) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -45,52 +77,23 @@ export default function CapturePage() {
         );
     }
 
-    const resetCaptureFlow = () => {
-        setAudioBlob(null);
-        setRecordId(null);
-        setProcessingLogs([]);
-        setError(null);
-        setConsent(false);
-        setStatus('idle');
-    };
-
-    const getAudioDuration = (blob: Blob) =>
-        new Promise<number>((resolve, reject) => {
-            const objectUrl = URL.createObjectURL(blob);
-            const audio = document.createElement('audio');
-
-            audio.preload = 'metadata';
-            audio.onloadedmetadata = () => {
-                const duration = audio.duration;
-                URL.revokeObjectURL(objectUrl);
-                if (!Number.isFinite(duration)) {
-                    reject(new Error('Audio duration could not be read.'));
-                    return;
-                }
-                resolve(duration);
-            };
-            audio.onerror = () => {
-                URL.revokeObjectURL(objectUrl);
-                reject(new Error('Audio recording could not be validated.'));
-            };
-            audio.src = objectUrl;
-        });
-
-    const validateRecordedAudio = async (blob: Blob) => {
-        if (blob.size < MIN_AUDIO_BYTES) {
-            throw new Error("The recording looks empty. Please record a longer clip and try again.");
-        }
-
-        const duration = await getAudioDuration(blob);
-        if (duration < MIN_AUDIO_DURATION_SECONDS) {
-            throw new Error("The recording is too short. Please record at least a short sentence.");
-        }
-    };
-
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
+
+            // Pick the best supported format — browsers don't record real WAV
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                ? 'audio/webm;codecs=opus'
+                : MediaRecorder.isTypeSupported('audio/webm')
+                    ? 'audio/webm'
+                    : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+                        ? 'audio/ogg;codecs=opus'
+                        : '';
+
+            const mediaRecorder = mimeType
+                ? new MediaRecorder(stream, { mimeType })
+                : new MediaRecorder(stream);
+
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
@@ -99,7 +102,10 @@ export default function CapturePage() {
             };
 
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: 'audio/wav' });
+                const actualMime = mediaRecorder.mimeType || 'audio/webm';
+                const blob = new Blob(chunksRef.current, { type: actualMime });
+                setAudioBlob(blob);
+                setStatus('review');
                 stream.getTracks().forEach(track => track.stop());
                 setError(null);
 
@@ -140,16 +146,19 @@ export default function CapturePage() {
 
     const handleUpload = async () => {
         if (!audioBlob) return;
+        setStatus('uploading');
+
+        // Derive the correct file extension from the blob MIME type
+        const mimeType = audioBlob.type || 'audio/webm';
+        const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const filename = `recording.${ext}`;
+
+        const formData = new FormData();
+        formData.append("file", audioBlob, filename);
+        formData.append("contributor", contributor);
+        formData.append("consent", consent.toString());
 
         try {
-            await validateRecordedAudio(audioBlob);
-            setStatus('uploading');
-
-            const formData = new FormData();
-            formData.append("file", audioBlob, "recording.wav");
-            formData.append("contributor", contributor);
-            formData.append("consent", consent.toString());
-
             const token = await getToken();
             const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
                 headers: {
@@ -176,34 +185,6 @@ export default function CapturePage() {
         }
     };
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-
-        if (status === 'processing' && recordId) {
-            interval = setInterval(async () => {
-                try {
-                    const res = await axios.get(`http://localhost:8000/api/status/${recordId}`);
-                    const data = res.data;
-
-                    setProcessingLogs(data.logs || []);
-
-                    if (data.status?.toLowerCase() === 'completed') {
-                        clearInterval(interval);
-                        router.push(`/archive/${recordId}`);
-                    } else if (data.status?.toLowerCase() === 'failed') {
-                        const pipelineLog = data.logs?.find((log: ProcessingLogEntry) => log.stage === 'pipeline' && log.status === 'failed');
-                        const errorMsg = data.metadata?.processing_error || pipelineLog?.error || "It looks like the audio wasn't recorded properly or was empty. Please try recording again.";
-                        setError(errorMsg);
-                        clearInterval(interval);
-                        setStatus('failed');
-                    }
-                } catch (e) {
-                    console.error("Polling error", e);
-                }
-            }, 2000);
-        }
-        return () => clearInterval(interval);
-    }, [status, recordId, router]);
 
     const steps = [
         { id: 'upload', label: 'Upload', description: 'Securely saving audio', status: processingLogs.find(log => log.stage === 'upload')?.status === 'success' ? 'completed' : 'pending' },

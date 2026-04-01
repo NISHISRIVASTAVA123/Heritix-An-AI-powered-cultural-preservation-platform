@@ -5,47 +5,38 @@ if ffmpeg_path not in os.environ["PATH"]:
     os.environ["PATH"] += os.pathsep + ffmpeg_path
 
 import whisper
-import aiofiles
+
 class STTService:
     def __init__(self):
-        # Load the model on startup - this might take a moment
         print("Loading Whisper model (small)...")
         self.model = whisper.load_model("small")
         print("Whisper model loaded.")
 
-    async def transcribe(self, audio_content: bytes) -> dict:
+    async def transcribe(self, file_path: str) -> dict:
         """
-        Transcribes audio content using local Whisper model.
+        Transcribes audio from a file path using the local Whisper model.
+        Accepts the actual file path so Whisper/ffmpeg can detect the format
+        from the file extension correctly (webm, ogg, mp4, wav, etc.)
+
         Returns: {"text": str, "language": str}
         """
+        if not os.path.exists(file_path):
+            raise RuntimeError(f"Audio file not found: {file_path}")
+
         try:
-            # Whisper requires a file path, so we'll save it temporarily
-            temp_filename = "temp_audio_for_stt.wav"
-            async with aiofiles.open(temp_filename, 'wb') as f:
-                await f.write(audio_content)
-            
-            # Transcribe
-            # result = self.model.transcribe(temp_filename)
-            # To get language, we can access it from the result if available, 
-            # OR use the lower-level decode which gives more info.
-            # But model.transcribe returns a dict with 'text' and 'language' keys in recent versions?
-            # Actually, standard whisper.transcribe returns a dict: {"text": "...", "segments": [...], "language": "en"}
-            
-            result = self.model.transcribe(temp_filename)
+            result = self.model.transcribe(
+                file_path,
+                fp16=False,                        # Required on CPU / Windows
+                task="transcribe",
+                condition_on_previous_text=False,  # Prevents hallucination loops on long audio
+                verbose=False,
+            )
             transcript = result["text"]
             language = result.get("language", "unknown")
-            
-            # Cleanup
-            if os.path.exists(temp_filename):
-                os.remove(temp_filename)
-                
             return {"text": transcript.strip(), "language": language}
 
         except Exception as e:
-            print(f"Error in STT: {e}")
-            if os.path.exists("temp_audio_for_stt.wav"):
-                 os.remove("temp_audio_for_stt.wav")
-            return f"Error transcribing audio: {str(e)}"
+            print(f"Error in STT for file '{file_path}': {e}")
+            raise RuntimeError(f"Transcription failed: {str(e)}") from e
 
 stt_service = STTService()
-

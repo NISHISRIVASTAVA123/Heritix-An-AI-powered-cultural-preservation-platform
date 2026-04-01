@@ -17,7 +17,7 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
     const categoryLower = category.toLowerCase();
     let Icon = 'auto_stories';
     let iconBg = 'bg-secondary-fixed text-on-secondary-fixed';
-    
+
     // Default image if none matches
     let imgUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuA8NVPCLVRqC7qWmyp9ExpuwWwaAN3naNuVnTNfLWb5aiOYd75NlV0Y1VCOHue2-xkoJgO1T6kMaM2DzREHiHQDCnLwJzDyUHFxEyc_9uMe5YWqjoMoJTlryNvi0_-CnM0Ribr9TmpAcZzTr7S7QkiApDyiIaYxKNR5MMlQLdX7uA9ZogKvksFGKVvsg1TSreK2w5NN9QwcgfYFU3_xWvnN8JIyvrEfjaoNnkI_H4bp1DiQPT81dadbwTeMzYPKLO_ZzBrSla0EXRfb";
 
@@ -69,7 +69,7 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
                         {category}
                     </span>
                 </div>
-                
+
                 <div className="mb-4">
                     <img className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm pointer-events-none" alt={title} src={imgUrl} />
                     <h3 className="text-2xl font-bold font-headline text-on-surface mb-3 leading-tight">{title}</h3>
@@ -81,12 +81,12 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
                         {contributor}
                     </div>
                 </div>
-                
+
                 <div className="mt-auto pt-6 flex items-center justify-between border-t border-surface-container-highest/50">
                     <span className="px-4 py-1 bg-surface-variant text-on-surface-variant font-bold text-xs rounded-full">
                         {formattedDate}
                     </span>
-                    
+
                     <Link href={`/archive/${id}`} className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95 border border-primary/20">
                         <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                             {audioUrl ? 'play_arrow' : 'article'}

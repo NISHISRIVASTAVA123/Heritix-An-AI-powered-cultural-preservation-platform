@@ -5,12 +5,37 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
+// Language code → human-readable label
+const LANG_LABELS: Record<string, string> = {
+    en: 'English',
+    hi: 'Hindi / हिंदी',
+    ta: 'Tamil / தமிழ்',
+    te: 'Telugu / తెలుగు',
+    kn: 'Kannada / ಕನ್ನಡ',
+    ml: 'Malayalam / മലയാളം',
+    bn: 'Bengali / বাংলা',
+    mr: 'Marathi / मराठी',
+    pa: 'Punjabi / ਪੰਜਾਬੀ',
+    gu: 'Gujarati / ગુજરાતી',
+    ur: 'Urdu / اردو',
+    ar: 'Arabic / العربية',
+    zh: 'Chinese / 中文',
+    fr: 'French / Français',
+    de: 'German / Deutsch',
+    es: 'Spanish / Español',
+    ja: 'Japanese / 日本語',
+    ko: 'Korean / 한국어',
+    pt: 'Portuguese / Português',
+    ru: 'Russian / Русский',
+};
+
 interface RecordDetail {
     _id: string;
     title: string;
     category: string;
     contributor: string;
     transcript: string;
+    detected_language?: string;
     audio_url?: string;
     created_at: string;
     processing_status: string;
@@ -227,42 +252,54 @@ export default function RecordDetailPage() {
                         </div>
                     )}
 
-                    {/* Transcript Section */}
+                    {/* Translation Section — shown above the original transcript */}
+                    {(record.translations?.en || record.detected_language) && (
+                        <div className="relative">
+                            <div className="absolute -left-4 md:-left-6 top-1 w-1.5 h-12 bg-secondary rounded-full"></div>
+                            <h2 className="font-headline text-2xl font-extrabold text-on-surface mb-6 tracking-tight flex items-center gap-3">
+                                <span className="material-symbols-outlined text-secondary p-2 bg-secondary/10 rounded-xl">translate</span>
+                                English Translation
+                            </h2>
+
+                            {/* Detected language badge */}
+                            {record.detected_language && (
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="material-symbols-outlined text-sm text-outline">language</span>
+                                    <span className="text-xs font-bold uppercase tracking-widest text-outline">Detected Language:</span>
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold border border-secondary/20">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
+                                        {LANG_LABELS[record.detected_language] ?? record.detected_language.toUpperCase()}
+                                    </span>
+                                </div>
+                            )}
+
+                            <div className="bg-surface-container-lowest p-6 md:p-10 rounded-2xl border border-outline-variant/30 shadow-sm relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-5 opacity-[0.04] bg-secondary-container rounded-bl-[4rem] group-hover:scale-110 transition-transform duration-500">
+                                    <span className="material-symbols-outlined text-7xl">language</span>
+                                </div>
+                                <p className="whitespace-pre-wrap leading-relaxed text-lg text-on-surface font-serif relative z-10">
+                                    {record.translations?.en
+                                        ?? 'English translation not available for this record.'}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Full Transcript Section */}
                     <div>
                         <h2 className="font-headline text-2xl font-extrabold text-on-surface mb-8 tracking-tight flex items-center gap-3">
                             <span className="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-xl">notes</span>
                             Full Transcript
+                            {record.detected_language && (
+                                <span className="ml-auto text-xs font-bold uppercase tracking-widest text-outline bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/20">
+                                    {LANG_LABELS[record.detected_language] ?? record.detected_language.toUpperCase()}
+                                </span>
+                            )}
                         </h2>
                         <div className="bg-surface rounded-2xl border border-surface-container-highest p-6 md:p-10 shadow-sm leading-relaxed text-lg text-on-surface-variant font-serif whitespace-pre-wrap">
                             {record.transcript}
                         </div>
                     </div>
-
-                    {/* Translations Section */}
-                    {record.translations && Object.keys(record.translations).length > 0 && (
-                        <div>
-                            <h2 className="font-headline text-2xl font-extrabold text-on-surface mb-8 tracking-tight flex items-center gap-3">
-                                <span className="material-symbols-outlined text-secondary p-2 bg-secondary/10 rounded-xl">translate</span>
-                                Translations
-                            </h2>
-                            <div className="space-y-6">
-                                {Object.entries(record.translations).map(([lang, text]) => (
-                                    <div key={lang} className="bg-surface-container-lowest p-6 md:p-8 rounded-2xl border border-outline-variant/30 shadow-sm relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 bg-secondary-container rounded-bl-[4rem] group-hover:scale-110 transition-transform">
-                                            <span className="material-symbols-outlined text-6xl">language</span>
-                                        </div>
-                                        <h4 className="font-bold text-outline uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-secondary"></div>
-                                            {lang === 'hi' ? 'Hindi / हिंदी' : lang === 'es' ? 'Spanish / Español' : lang}
-                                        </h4>
-                                        <p className="whitespace-pre-wrap leading-relaxed text-lg text-on-surface font-serif relative z-10">
-                                            {text}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* Medical Disclaimer Box */}
                     {isFolkMedicine && (
@@ -316,7 +353,7 @@ export default function RecordDetailPage() {
 
                                 {record.education_data?.moral && (
                                     <p className="pt-8 pb-4 text-on-primary leading-relaxed italic border-t border-on-primary/20 font-serif text-2xl md:text-3xl font-medium">
-                                        "{getEduText(record.education_data.moral)}"
+                                        &ldquo;{getEduText(record.education_data.moral)}&rdquo;
                                     </p>
                                 )}
                             </div>
