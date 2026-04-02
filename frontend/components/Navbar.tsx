@@ -6,6 +6,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SignInButton, UserButton, useAuth } from '@clerk/nextjs';
+import ProtectedLink from './ProtectedLink';
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -36,7 +37,7 @@ export default function Navbar() {
         ].map((link, index) => {
           const isHovered = hoveredIndex === index;
           return (
-            <Link
+            <ProtectedLink
               key={link.name}
               href={link.href}
               onMouseEnter={() => setHoveredIndex(index)}
@@ -53,7 +54,7 @@ export default function Navbar() {
               <span className={`relative z-10 font-headline font-semibold text-sm tracking-wide transition-colors duration-300 ${isHovered ? 'text-[#154212] dark:text-[#d0e8c2]' : 'text-[#1b1c19]/60 dark:text-[#faf9f4]/60'}`}>
                 {link.name}
               </span>
-            </Link>
+            </ProtectedLink>
           );
         })}
       </div>

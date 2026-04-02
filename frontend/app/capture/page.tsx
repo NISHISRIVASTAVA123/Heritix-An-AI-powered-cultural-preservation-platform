@@ -7,6 +7,12 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
+interface ProcessingLogEntry {
+    stage: string;
+    status: string;
+    error?: string;
+}
+
 export default function CapturePage() {
     const [status, setStatus] = useState<'idle' | 'recording' | 'review' | 'uploading' | 'processing' | 'failed'>('idle');
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -24,7 +30,7 @@ export default function CapturePage() {
 
     useEffect(() => {
         if (isLoaded && !isSignedIn) {
-            router.push('/');
+            router.replace('/sign-in?redirect_url=%2Fcapture');
         }
     }, [isLoaded, isSignedIn, router]);
 
@@ -76,6 +82,21 @@ export default function CapturePage() {
             </div>
         );
     }
+
+    const validateRecordedAudio = async (blob: Blob) => {
+        if (blob.size === 0) {
+            throw new Error("The audio recording is empty.");
+        }
+    };
+
+    const resetCaptureFlow = () => {
+        setStatus('idle');
+        setAudioBlob(null);
+        setRecordId(null);
+        setError(null);
+        setProcessingLogs([]);
+        setConsent(false);
+    };
 
     const startRecording = async () => {
         try {

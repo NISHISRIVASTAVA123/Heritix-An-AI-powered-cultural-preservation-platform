@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import ProtectedLink from '@/components/ProtectedLink';
 
 export default function Home() {
   return (
@@ -14,14 +14,14 @@ export default function Home() {
               A digital sanctuary dedicated to the living ledger of our cultural heritage. Heritix helps families and communities document oral histories with the dignity they deserve.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-6 pt-6">
-              <Link href="/capture" className="w-full sm:w-auto px-10 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-headline font-bold text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 active:scale-95">
+              <ProtectedLink href="/capture" className="w-full sm:w-auto px-10 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-headline font-bold text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 active:scale-95">
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
                 Record Knowledge
-              </Link>
-              <Link href="/archive" className="w-full sm:w-auto px-10 py-5 bg-secondary-fixed text-on-secondary-fixed rounded-full font-headline font-bold text-lg hover:bg-secondary-container transition-all duration-500 flex items-center justify-center gap-2">
+              </ProtectedLink>
+              <ProtectedLink href="/archive" className="w-full sm:w-auto px-10 py-5 bg-secondary-fixed text-on-secondary-fixed rounded-full font-headline font-bold text-lg hover:bg-secondary-container transition-all duration-500 flex items-center justify-center gap-2">
                 Explore Archive
                 <span className="material-symbols-outlined text-xl">arrow_forward</span>
-              </Link>
+              </ProtectedLink>
             </div>
           </div>
           <div className="lg:col-span-4 hidden lg:block">
@@ -100,10 +100,10 @@ export default function Home() {
               Heritix is not a database; it is a sanctuary. We prioritize the human element of archiving, using technology to bridge the gap between generations rather than replace the intimacy of storytelling.
             </p>
             <div className="pt-4">
-              <Link href="/archive" className="inline-flex items-center gap-4 text-primary font-bold text-lg group">
+              <ProtectedLink href="/archive" className="inline-flex items-center gap-4 text-primary font-bold text-lg group">
                 Explore the Archive
                 <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_right_alt</span>
-              </Link>
+              </ProtectedLink>
             </div>
           </div>
         </div>
@@ -127,9 +127,9 @@ export default function Home() {
             </div>
             <span className="text-xs font-mono text-tertiary-container font-bold">04:22 / 12:45</span>
           </div>
-          <Link href="/capture" className="px-8 py-4 bg-tertiary text-on-tertiary rounded-full font-bold hover:bg-tertiary/90 transition-all text-center">
+          <ProtectedLink href="/capture" className="px-8 py-4 bg-tertiary text-on-tertiary rounded-full font-bold hover:bg-tertiary/90 transition-all text-center">
             Start Your Story
-          </Link>
+          </ProtectedLink>
         </div>
       </section>
     </div>
