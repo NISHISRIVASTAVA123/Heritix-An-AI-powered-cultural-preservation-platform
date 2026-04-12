@@ -5,7 +5,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from config import settings
 
 class ContextAgent(BaseAgent):
-    def __init__(self):
+    """
+    Agent dedicated to deducing implicit cultural significance and psychological angles from a text.
+    """
+    def __init__(self) -> None:
+        """Initialize the ContextAgent with a configured LLM."""
         super().__init__("context")
         self.llm = ChatGroq(
             model="llama-3.3-70b-versatile",
@@ -13,7 +17,17 @@ class ContextAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str) -> Dict[str, Any]:
+    async def process(self, input_data: str, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Produce a short analysis on the cultural and historical implications of the material.
+
+        Args:
+            input_data (str): Descriptive narrative blob text.
+            **kwargs (Any): Variable keyword arguments (unused in this agent).
+
+        Returns:
+            Dict[str, Any]: Encapsulated string analysis under the 'context_analysis' key.
+        """
         prompt = ChatPromptTemplate.from_template(
             "Analyze the cultural context and significance of the following text: {text}"
         )

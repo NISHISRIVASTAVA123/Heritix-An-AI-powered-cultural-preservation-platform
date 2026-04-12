@@ -5,7 +5,13 @@ from typing import List, Optional
 router = APIRouter()
 
 @router.get("/all")
-async def get_all_records():
+async def get_all_records() -> List[dict]:
+    """
+    Retrieve all processed records from the database.
+
+    Returns:
+        List[dict]: A list of aggregated records with metadata and summary content.
+    """
     # Use aggregation to join with content and get summary
     pipeline = [
         {
@@ -62,7 +68,18 @@ async def search_records(
     q: Optional[str] = None,
     category: Optional[str] = None,
     language: Optional[str] = None
-):
+) -> List[dict]:
+    """
+    Search and stream completed records based on query, category, and language.
+
+    Args:
+        q (Optional[str]): The broad search query matching the title or transcript.
+        category (Optional[str]): Filters records explicitly mapped to this category.
+        language (Optional[str]): Filters records matching the STT detected language code.
+
+    Returns:
+        List[dict]: A list of flat metadata dictionaries fulfilling the search criteria.
+    """
     pipeline = []
 
     # 1. Match Stage (Filters)
@@ -133,7 +150,19 @@ async def search_records(
     return formatted_records
 
 @router.get("/{record_id}")
-async def get_record_by_id(record_id: str):
+async def get_record_by_id(record_id: str) -> dict:
+    """
+    Fetch a detailed record overview by its unique identifier.
+
+    Args:
+        record_id (str): The unique ID of the specific record to query.
+
+    Returns:
+        dict: A fully combined structure of record metadata and specific nested agent content arrays.
+
+    Raises:
+        HTTPException: If the record could not be found via `record_id`.
+    """
     # 1. Fetch Metadata
     metadata = await db.db.knowledge.find_one({"_id": record_id})
     if not metadata:
