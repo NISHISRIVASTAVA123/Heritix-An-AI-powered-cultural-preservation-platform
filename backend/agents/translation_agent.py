@@ -5,7 +5,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from config import settings
 
 class TranslationAgent(BaseAgent):
-    def __init__(self):
+    """
+    Multilingual globalization agent executing robust string mappings and corpus transformations.
+    """
+    def __init__(self) -> None:
+        """Initialize the TranslationAgent focusing on maximized token spaces to manage whole transcriptions."""
         super().__init__("translation")
         self.llm = ChatGroq(
             model="llama-3.3-70b-versatile",
@@ -14,7 +18,17 @@ class TranslationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str) -> Dict[str, Any]:
+    async def process(self, input_data: str, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Migrates any native string context linearly towards standardized English structural formatting.
+
+        Args:
+            input_data (str): Unknown cultural language string corpus.
+            **kwargs (Any): Extensible variable parameters for general base compatibility.
+
+        Returns:
+            Dict[str, Any]: English mapped dictionary returning the comprehensive corpus.
+        """
         prompt = ChatPromptTemplate.from_template(
             """
             Translate the following text into English completely and in full.

@@ -5,7 +5,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from config import settings
 
 class ExtractionAgent(BaseAgent):
-    def __init__(self):
+    """
+    Knowledge mining agent configured to pull entity artifacts and metadata structures from freeform text.
+    """
+    def __init__(self) -> None:
+        """Establish the ExtractionAgent with a deterministic configuration model."""
         super().__init__("extraction")
         self.llm = ChatGroq(
             model="llama-3.3-70b-versatile",
@@ -13,7 +17,17 @@ class ExtractionAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str) -> Dict[str, Any]:
+    async def process(self, input_data: str, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Extract deterministic artifacts (ingredients, titles, themes) formatting logically into strict JSON output.
+
+        Args:
+            input_data (str): Evaluated blob corpus representing historical facts/observations.
+            **kwargs (Any): Extensible variable configurations for base class.
+
+        Returns:
+            Dict[str, Any]: Mapped string-value structure housing extracted metadata entities.
+        """
         prompt = ChatPromptTemplate.from_template(
             """
             Extract key cultural knowledge entities from the following text: {text}

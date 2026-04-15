@@ -5,7 +5,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from config import settings
 
 class CategorizationAgent(BaseAgent):
-    def __init__(self):
+    """
+    Agent responsible for classifying cultural text into predefined taxonomic domains.
+    """
+    def __init__(self) -> None:
+        """Initialize the CategorizationAgent with the LLM instance."""
         super().__init__("categorization")
         self.llm = ChatGroq(
             model="llama-3.3-70b-versatile", 
@@ -13,7 +17,17 @@ class CategorizationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str) -> Dict[str, Any]:
+    async def process(self, input_data: str, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Process the text to determine its primary cultural domain.
+
+        Args:
+            input_data (str): The raw text to be categorized.
+            **kwargs (Any): Additional dynamic arguments (unused in this agent).
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the established 'category'.
+        """
         prompt = ChatPromptTemplate.from_template(
             """
             Categorize the following text into a cultural domain.

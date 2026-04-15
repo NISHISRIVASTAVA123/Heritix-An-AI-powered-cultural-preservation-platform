@@ -4,6 +4,9 @@ from db.mongo import db
 from config import settings
 from routers import processing, archive, agents
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from limiter import limiter
 import os
 
 # Create uploads directory if it doesn't exist
@@ -16,6 +19,8 @@ async def lifespan(app: FastAPI):
     await db.close_database_connection()
 
 app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 from fastapi.middleware.cors import CORSMiddleware
 

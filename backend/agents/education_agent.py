@@ -5,7 +5,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from config import settings
 
 class EducationAgent(BaseAgent):
-    def __init__(self):
+    """
+    Pedagogical agent transforming raw cultural transcripts into structured learning experiences.
+    """
+    def __init__(self) -> None:
+        """Initialize the EducationAgent enforcing a slightly higher temperature for creative narrative style."""
         super().__init__("education")
         self.llm = ChatGroq(
             model="llama-3.3-70b-versatile", 
@@ -13,7 +17,18 @@ class EducationAgent(BaseAgent):
             api_key=settings.GROQ_API_KEY
         )
 
-    async def process(self, input_data: str, language: str = "en", **kwargs) -> Dict[str, Any]:
+    async def process(self, input_data: str, language: str = "en", **kwargs: Any) -> Dict[str, Any]:
+        """
+        Orchestrate the restructuring task using deep conversational prompting strategies.
+
+        Args:
+            input_data (str): The transcribed vocal story to analyze.
+            language (str, optional): Core origin language ensuring targeted instructional language output boundaries.
+            **kwargs (Any): Extensible variable input keyword arguments.
+
+        Returns:
+            Dict[str, Any]: Comprehensive suite of JSON keys (Summary, Lesson, Moral, Quiz Questions) tailored pedagogically.
+        """
         prompt = ChatPromptTemplate.from_template(
             """
 You are a cultural preservation educator working on **Heritix**, a platform dedicated to 

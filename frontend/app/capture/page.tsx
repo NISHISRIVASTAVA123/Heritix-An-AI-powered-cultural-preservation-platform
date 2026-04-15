@@ -21,6 +21,10 @@ export default function CapturePage() {
     const [recordId, setRecordId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [processingLogs, setProcessingLogs] = useState<ProcessingLogEntry[]>([]);
+    
+    // New states for recording metrics
+    const [recordingTime, setRecordingTime] = useState(0);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const { isSignedIn, isLoaded, getToken } = useAuth();
     const router = useRouter();
@@ -33,6 +37,34 @@ export default function CapturePage() {
             router.replace('/sign-in?redirect_url=%2Fcapture');
         }
     }, [isLoaded, isSignedIn, router]);
+
+    // Timer effect
+    useEffect(() => {
+        if (status === 'recording') {
+            timerRef.current = setInterval(() => {
+                setRecordingTime((prev) => prev + 1);
+            }, 1000);
+        } else {
+            if (timerRef.current) clearInterval(timerRef.current);
+        }
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [status]);
+
+    const formatDuration = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    };
 
     // POLLING EFFECT — must live here (before early return) so hooks are always called in the same order
     useEffect(() => {
@@ -96,6 +128,7 @@ export default function CapturePage() {
         setError(null);
         setProcessingLogs([]);
         setConsent(false);
+        setRecordingTime(0);
     };
 
     const startRecording = async () => {
@@ -117,6 +150,7 @@ export default function CapturePage() {
 
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
+            setRecordingTime(0);
 
             mediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) chunksRef.current.push(e.data);
@@ -143,7 +177,7 @@ export default function CapturePage() {
                 })();
             };
 
-            mediaRecorder.start();
+            mediaRecorder.start(1000); // chunk every 1s
             setStatus('recording');
             setError(null);
         } catch (err) {
@@ -280,16 +314,36 @@ export default function CapturePage() {
 
             {['idle', 'recording'].includes(status) && (
                 <section className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
-                    <RecordButton
-                        isRecording={status === 'recording'}
-                        onClick={status === 'recording' ? stopRecording : startRecording}
-                    />
-
-                    <div className="mb-12">
-                        <p className="font-headline font-semibold text-xl text-secondary italic">
-                            "You may speak in any language or dialect."
-                        </p>
+                    <div className="relative mb-8">
+                        <RecordButton
+                            isRecording={status === 'recording'}
+                            onClick={status === 'recording' ? stopRecording : startRecording}
+                        />
+                        {/* Recording metrics ring */}
+                        {status === 'recording' && (
+                            <div className="absolute -inset-8 -z-10 rounded-full border border-error/30 animate-ping"></div>
+                        )}
                     </div>
+                    
+                    {status === 'recording' ? (
+                        <div className="mb-10 text-center animate-pulse">
+                            <span className="font-headline font-extrabold text-4xl text-error drop-shadow-md">
+                                {formatDuration(recordingTime)}
+                            </span>
+                            <p className="text-sm font-bold text-error/80 uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-error"></span> Recording Active
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="mb-10 text-center">
+                            <p className="font-headline font-semibold text-xl text-secondary italic">
+                                "You may speak in any language or dialect."
+                            </p>
+                            <p className="text-sm text-on-surface-variant/80 mt-2">
+                                Supported formats: WebM, OGG (auto-selected)
+                            </p>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-6 w-full max-w-md px-4">
                         <button onClick={startRecording} disabled={status === 'recording'} className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full font-headline font-bold text-lg shadow-lg transition-all duration-300 ${status === 'recording' ? 'bg-surface-dim text-on-surface-variant cursor-not-allowed' : 'bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-xl hover:scale-105 active:scale-95'}`}>
@@ -309,7 +363,17 @@ export default function CapturePage() {
                     <audio ref={audioPlayerRef} className="hidden" controls />
 
                     <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] border border-surface-container text-left w-full mb-8">
-                        <h3 className="text-2xl font-bold font-headline text-primary mb-6">Review & Submit</h3>
+                        <h3 className="text-2xl font-bold font-headline text-primary mb-2">Review & Submit</h3>
+                        <p className="text-on-surface-variant font-medium mb-8 flex items-center gap-4">
+                            <span className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-md border border-surface-container-highest shadow-sm text-sm">
+                                <span className="material-symbols-outlined text-sm">timer</span>
+                                {formatDuration(recordingTime)}
+                            </span>
+                            <span className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-md border border-surface-container-highest shadow-sm text-sm">
+                                <span className="material-symbols-outlined text-sm">folder_open</span>
+                                {audioBlob ? formatFileSize(audioBlob.size) : '0 B'}
+                            </span>
+                        </p>
 
                         <div className="mb-6">
                             <label className="block text-sm font-bold text-on-surface-variant mb-2">Contributor Name</label>

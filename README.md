@@ -176,7 +176,7 @@ cp .env.example .env
 
 | Variable | Description |
 |---|---|
-| `MONGODB_URL` | MongoDB connection string (e.g. `mongodb://localhost:27017`) |
+| `MONGODB_URL` | MongoDB connection string (e.g. `<YOUR_MONGODB_URI>`) |
 | `DB_NAME` | Database name (default: `heritix`) |
 | `GROQ_API_KEY` | Groq API key for Llama 3.3 inference |
 | `HUGGINGFACEHUB_API_TOKEN` | HuggingFace token (optional, for extended model support) |
@@ -235,7 +235,7 @@ docker compose up --build
 | Backend API | `8000` |
 | MongoDB | `27017` |
 
-> **Note:** Set `MONGODB_URL=mongodb://mongo:27017` in your `.env` when using Docker Compose, as `mongo` is the internal service hostname.
+> **Note:** Set `MONGODB_URL=<YOUR_MONGODB_URI>` in your `.env` when using Docker Compose, as `mongo` is the internal service hostname.
 
 ---
 

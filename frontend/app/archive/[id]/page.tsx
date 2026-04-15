@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Language code → human-readable label
 const LANG_LABELS: Record<string, string> = {
@@ -336,18 +338,22 @@ export default function RecordDetailPage() {
 
                             <div className="space-y-6 relative z-10 text-center">
                                 {record.education_data?.summary && (
-                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5">
-                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3">Summary</p>
-                                        <p className="text-lg md:text-xl leading-relaxed text-on-primary">{getEduText(record.education_data.summary)}</p>
+                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5 text-left">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3 text-center">Summary</p>
+                                        <div className="prose prose-invert prose-lg max-w-none text-on-primary prose-p:leading-relaxed prose-a:text-primary-fixed">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{getEduText(record.education_data.summary) || ""}</ReactMarkdown>
+                                        </div>
                                     </div>
                                 )}
 
                                 {record.education_data?.lesson && (
-                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5">
-                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3 flex items-center justify-center gap-2">
+                                    <div className="bg-on-primary/10 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-on-primary/5 text-left">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-on-primary/80 mb-3 flex items-center justify-center gap-2 text-center">
                                             <span className="material-symbols-outlined text-sm">school</span> Core Lesson
                                         </p>
-                                        <p className="text-lg md:text-xl leading-relaxed text-on-primary">{getEduText(record.education_data.lesson)}</p>
+                                        <div className="prose prose-invert prose-lg max-w-none text-on-primary prose-p:leading-relaxed prose-a:text-primary-fixed">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{getEduText(record.education_data.lesson) || ""}</ReactMarkdown>
+                                        </div>
                                     </div>
                                 )}
 
