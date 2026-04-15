@@ -160,3 +160,80 @@ async def get_record_by_id(record_id: str):
     }
     
     return result
+
+@router.get("/map/map-markers")
+async def get_map_markers():
+    # Only return essential data for rendering map markers
+    pipeline = [
+        {
+            "$match": {
+                "processing_status": "completed",
+                "latitude": {"$exists": True, "$ne": None},
+                "longitude": {"$exists": True, "$ne": None}
+            }
+        },
+        {
+            "$project": {
+                "_id": {"$toString": "$_id"},
+                "title": 1,
+                "category": 1,
+                "region_name": 1,
+                "latitude": 1,
+                "longitude": 1
+            }
+        }
+    ]
+    records = await db.db.knowledge.aggregate(pipeline).to_list(None)
+    return records
+
+@router.get("/map/by-region")
+async def get_by_region(
+    region: str,
+    category: str = None,
+    language: str = None
+):
+    query = {
+        "processing_status": "completed",
+        "region_name": region
+    }
+    
+    if category and category != "All":
+        query["category"] = category
+    if language:
+        query["detected_language"] = language
+        
+    pipeline = [
+        {"$match": query},
+        {"$sort": {"created_at": -1}},
+        {"$limit": 50},
+        {
+            "$lookup": {
+                "from": "knowledge_content",
+                "localField": "_id",
+                "foreignField": "knowledge_id",
+                "as": "content"
+            }
+        },
+        {"$unwind": {"path": "$content", "preserveNullAndEmptyArrays": True}}
+    ]
+    
+    records = await db.db.knowledge.aggregate(pipeline).to_list(50)
+    
+    formatted_records = []
+    for r in records:
+        r["_id"] = str(r["_id"])
+        
+        # Map fields for preview
+        if "category" not in r: r["category"] = "Uncategorized"
+        if "transcript" not in r: r["transcript"] = ""
+        
+        content = r.get("content", {})
+        if content:
+             edu = content.get("education_data", {})
+             if edu:
+                 r["summary"] = edu.get("summary")
+        if "content" in r: del r["content"]
+        
+        formatted_records.append(r)
+        
+    return formatted_records

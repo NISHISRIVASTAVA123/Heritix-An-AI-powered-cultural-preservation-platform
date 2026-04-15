@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "heritix_db"
     GROQ_API_KEY: str
     HUGGINGFACEHUB_API_TOKEN: str
-    CLERK_SECRET_KEY: SecretStr
+    CLERK_SECRET_KEY: SecretStr | None = None
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ENV_FILE,

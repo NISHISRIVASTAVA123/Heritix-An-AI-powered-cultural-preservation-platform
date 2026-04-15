@@ -122,19 +122,34 @@ async def process_record_task(record_id: str, audio_url: str):
         await log_stage(record_id, "extraction", "started")
         extraction_data = await agent_manager.process_extraction(transcript)
         
-        # Extract title from extraction_data
+        # Extract metadata from extraction_data
         generated_title = extraction_data.get("title") if isinstance(extraction_data, dict) else None
+        region_name = extraction_data.get("region_name") if isinstance(extraction_data, dict) else None
+        latitude = extraction_data.get("latitude") if isinstance(extraction_data, dict) else None
+        longitude = extraction_data.get("longitude") if isinstance(extraction_data, dict) else None
         
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
             {"$set": {"extraction_data": extraction_data}}
         )
         
-        # Update metadata title if generated
+        update_fields = {}
         if generated_title:
+            update_fields["title"] = generated_title
+        if region_name:
+            update_fields["region_name"] = region_name
+        if latitude is not None and longitude is not None:
+            try:
+                update_fields["latitude"] = float(latitude)
+                update_fields["longitude"] = float(longitude)
+            except ValueError:
+                pass # Ignore if it's not a valid float
+                
+        # Update metadata if generated
+        if update_fields:
             await db.db.knowledge.update_one(
                 {"_id": record_id},
-                {"$set": {"title": generated_title}}
+                {"$set": update_fields}
             )
             
         await log_stage(record_id, "extraction", "success")
