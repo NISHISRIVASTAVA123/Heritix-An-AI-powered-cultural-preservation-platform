@@ -33,6 +33,7 @@ export default function Navbar() {
         {[
           { name: 'Home', href: '/' },
           { name: 'Archive', href: '/archive' },
+          { name: 'AI Explorer', href: '/explore' },
           { name: 'Record Stories', href: '/capture' }
         ].map((link, index) => {
           const isHovered = hoveredIndex === index;

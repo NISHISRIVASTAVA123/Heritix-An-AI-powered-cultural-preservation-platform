@@ -17,6 +17,7 @@ class MongoDB:
             await self.db.knowledge.create_index("category")
             await self.db.knowledge.create_index("detected_language")
             await self.db.knowledge.create_index("processing_status")
+            await self.db.knowledge.create_index([("location", "2dsphere")])
             
             # Knowledge Content Indices
             await self.db.knowledge_content.create_index("knowledge_id", unique=True)

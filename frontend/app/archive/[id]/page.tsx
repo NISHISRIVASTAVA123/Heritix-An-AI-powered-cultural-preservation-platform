@@ -77,7 +77,7 @@ export default function RecordDetailPage() {
 
     const fetchRecord = async (recordId: string) => {
         try {
-            const response = await axios.get(`http://localhost:8000/archive/${recordId}`);
+            const response = await axios.get(`http://127.0.0.1:8000/archive/${recordId}`);
             setRecord(response.data);
         } catch (err) {
             console.error("Error fetching record", err);

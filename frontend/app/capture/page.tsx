@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import RecordButton from '@/components/RecordButton';
 import ProcessingSteps from '@/components/ProcessingSteps';
+import { apiUrl } from '@/lib/api';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
@@ -17,6 +18,8 @@ export default function CapturePage() {
     const [status, setStatus] = useState<'idle' | 'recording' | 'review' | 'uploading' | 'processing' | 'failed'>('idle');
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const [contributor, setContributor] = useState("Anonymous");
+    const [state, setState] = useState("");
+    const [city, setCity] = useState("");
     const [consent, setConsent] = useState(false);
     const [recordId, setRecordId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -76,7 +79,9 @@ export default function CapturePage() {
         const interval = setInterval(async () => {
             if (cancelled) return;
             try {
-                const res = await axios.get(`http://localhost:8000/api/status/${recordId}`, {
+                const token = await getToken();
+                const res = await axios.get(apiUrl(`/api/status/${recordId}`), {
+                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
                     signal: controller.signal,
                 });
                 const data = res.data;
@@ -105,7 +110,7 @@ export default function CapturePage() {
             clearInterval(interval);
             controller.abort();
         };
-    }, [status, recordId, router]);
+    }, [getToken, status, recordId, router]);
 
     if (!isLoaded || !isSignedIn) {
         return (
@@ -128,6 +133,8 @@ export default function CapturePage() {
         setError(null);
         setProcessingLogs([]);
         setConsent(false);
+        setState("");
+        setCity("");
         setRecordingTime(0);
     };
 
@@ -212,20 +219,26 @@ export default function CapturePage() {
         formData.append("file", audioBlob, filename);
         formData.append("contributor", contributor);
         formData.append("consent", consent.toString());
+        formData.append("state", state);
+        formData.append("city", city);
 
         try {
             const token = await getToken();
-            const uploadRes = await axios.post("http://localhost:8000/api/upload-audio", formData, {
+            if (!token) {
+                throw new Error("You must be signed in to upload audio.");
+            }
+
+            const uploadRes = await axios.post(apiUrl("/api/upload-audio"), formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${token}`,
                 },
             });
             const id = uploadRes.data.record_id;
             setRecordId(id);
 
-            await axios.post(`http://localhost:8000/api/process/${id}`, {}, {
-                headers: { "Authorization": `Bearer ${token}` }
+            await axios.post(apiUrl(`/api/process/${id}`), {}, {
+                headers: { "Authorization": `Bearer ${token}` },
             });
             setStatus('processing');
         } catch (err: unknown) {
@@ -383,6 +396,103 @@ export default function CapturePage() {
                                 value={contributor}
                                 onChange={(e) => setContributor(e.target.value)}
                             />
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-bold text-on-surface-variant mb-2">State (Associated Region)</label>
+                            <input
+                                type="text"
+                                list="states-list"
+                                placeholder="Global / Type or select a state..."
+                                className="w-full px-4 py-3 bg-surface-container-highest rounded-md outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                value={state}
+                                onChange={(e) => setState(e.target.value)}
+                            />
+                            <datalist id="states-list">
+                                <option value="Andhra Pradesh" />
+                                <option value="Arunachal Pradesh" />
+                                <option value="Assam" />
+                                <option value="Bihar" />
+                                <option value="Chhattisgarh" />
+                                <option value="Goa" />
+                                <option value="Gujarat" />
+                                <option value="Haryana" />
+                                <option value="Himachal Pradesh" />
+                                <option value="Jharkhand" />
+                                <option value="Karnataka" />
+                                <option value="Kerala" />
+                                <option value="Madhya Pradesh" />
+                                <option value="Maharashtra" />
+                                <option value="Manipur" />
+                                <option value="Meghalaya" />
+                                <option value="Mizoram" />
+                                <option value="Nagaland" />
+                                <option value="Odisha" />
+                                <option value="Punjab" />
+                                <option value="Rajasthan" />
+                                <option value="Sikkim" />
+                                <option value="Tamil Nadu" />
+                                <option value="Telangana" />
+                                <option value="Tripura" />
+                                <option value="Uttar Pradesh" />
+                                <option value="Uttarakhand" />
+                                <option value="West Bengal" />
+                                <option value="Andaman and Nicobar Islands" />
+                                <option value="Chandigarh" />
+                                <option value="Delhi" />
+                                <option value="Jammu and Kashmir" />
+                                <option value="Ladakh" />
+                            </datalist>
+                        </div>
+
+                        <div className="mb-6">
+                            <label className="block text-sm font-bold text-on-surface-variant mb-2">City (Associated Region)</label>
+                            <input
+                                type="text"
+                                list="cities-list"
+                                placeholder="Type or select a city..."
+                                className="w-full px-4 py-3 bg-surface-container-highest rounded-md outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                            />
+                            <datalist id="cities-list">
+                                <option value="Mumbai" />
+                                <option value="Delhi" />
+                                <option value="Bengaluru" />
+                                <option value="Hyderabad" />
+                                <option value="Ahmedabad" />
+                                <option value="Chennai" />
+                                <option value="Kolkata" />
+                                <option value="Surat" />
+                                <option value="Pune" />
+                                <option value="Jaipur" />
+                                <option value="Lucknow" />
+                                <option value="Kanpur" />
+                                <option value="Nagpur" />
+                                <option value="Indore" />
+                                <option value="Thane" />
+                                <option value="Bhopal" />
+                                <option value="Visakhapatnam" />
+                                <option value="Patna" />
+                                <option value="Vadodara" />
+                                <option value="Ludhiana" />
+                                <option value="Agra" />
+                                <option value="Nashik" />
+                                <option value="Ranchi" />
+                                <option value="Faridabad" />
+                                <option value="Meerut" />
+                                <option value="Rajkot" />
+                                <option value="Varanasi" />
+                                <option value="Srinagar" />
+                                <option value="Aurangabad" />
+                                <option value="Dhanbad" />
+                                <option value="Amritsar" />
+                                <option value="Allahabad" />
+                                <option value="Guwahati" />
+                                <option value="Chandigarh" />
+                                <option value="Thiruvananthapuram" />
+                                <option value="Bhubaneswar" />
+                            </datalist>
                         </div>
 
                         <div className="mb-8">

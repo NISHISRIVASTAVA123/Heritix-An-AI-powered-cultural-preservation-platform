@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Cultural Map Explorer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+  :root {
+      /* Light mode */
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-soft: #64748b;
+      --primary: #3b82f6; 
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      --danger: #ef4444; 
+      
+      --amber: #d97706;
+      --green: #059669;
+      --purple: #7c3aed;
+      --coral: #e11d48;
+      --blue: #2563eb;
+
+      --amber-bg: #fef3c7;
+      --green-bg: #d1fae5;
+      --purple-bg: #ede9fe;
+      --coral-bg: #ffe4e6;
+      --blue-bg: #dbeafe;
+  }
+  @media (prefers-color-scheme: dark) {
+      :root {
+          --bg: #0f172a;
+          --surface: #1e293b;
+          --border: #334155;
+          --text: #f8fafc;
+          --text-soft: #94a3b8;
+          --primary: #60a5fa; 
+          --primary-hover: #93c5fd;
+          --primary-light: #1e3a8a; 
+          
+          --amber-bg: #452902;
+          --green-bg: #022c22;
+          --purple-bg: #2e1065;
+          --coral-bg: #4c0519;
+          --blue-bg: #172554;
+          
+          --amber: #fcd34d;
+          --green: #6ee7b7;
+          --purple: #c4b5fd;
+          --coral: #fda4af;
+          --blue: #93c5fd;
+      }
+  }
+
+  body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      font-weight: 400;
+  }
+  
+  .layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+  }
+
+  .map-section {
+      width: 65%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      box-sizing: border-box;
+      background: transparent;
+  }
+
+  .sidebar {
+      width: 35%;
+      background-color: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      height: 100%;
+  }
+  
+  /* search bar */
+  .search-container {
+      position: relative;
+      margin-bottom: 24px;
+      z-index: 50;
+  }
+  .search-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: var(--surface);
+      color: var(--text);
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+  }
+  .search-input:focus {
+      border-color: var(--primary);
+  }
+  .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 6px;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+      display: none;
+  }
+  .search-result-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background-color: var(--primary-light); }
+  .search-result-city { font-weight: 500; font-size: 15px; margin-bottom: 4px; }
+  .search-result-state { font-size: 13px; color: var(--text-soft); }
+
+  /* Map container */
+  .map-wrapper {
+      flex: 1;
+      position: relative;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+  svg#india-map {
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+  }
+  
+  .state-path {
+      fill: var(--bg);
+      stroke: var(--border);
+      stroke-width: 1;
+      transition: fill 0.2s, stroke 0.2s;
+  }
+  .state-path:hover, .state-path.active {
+      fill: var(--primary-light);
+      stroke: var(--primary);
+      stroke-width: 1.5;
+  }
+
+  /* Tooltip */
+  #hover-tooltip {
+      position: absolute;
+      background: var(--surface);
+      color: var(--text);
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      pointer-events: none;
+      z-index: 40;
+      white-space: nowrap;
+  }
+
+  /* Live Coordinates Badge */
+  #live-coords {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: var(--surface);
+      color: var(--text-soft);
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      z-index: 40;
+  }
+
+  /* Sidebar content */
+  .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+  }
+  .sidebar-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin: 0 0 12px 0;
+  }
+  .sidebar-coords {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 13px;
+      background: var(--bg);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+  }
+
+  .sidebar-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+  }
+
+  /* Empty state */
+  .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 0 20px;
+  }
+  .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      stroke: var(--text-soft);
+  }
+  .empty-state h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+      color: var(--text);
+  }
+  .empty-state p {
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+  }
+  
+  /* Skeleton loader */
+  .skeleton {
+      background: linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%);
+      background-size: 200% 100%;
+      animation: skeletonLoading 1.5s infinite;
+      border-radius: 4px;
+  }
+  @keyframes skeletonLoading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+  }
+  .skeleton-title { height: 20px; width: 40%; margin-bottom: 16px; }
+  .skeleton-text { height: 14px; width: 100%; margin-bottom: 10px; }
+  .skeleton-text.short { width: 70%; }
+
+  /* Info cards */
+  .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+  }
+  .info-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 0 12px 0;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+  }
+  .info-text {
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+      color: var(--text);
+  }
+
+  /* Tags */
+  .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+  }
+  .tag {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 500;
+  }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .tag-green { background: var(--green-bg); color: var(--green); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple); }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); }
+  .tag-coral { background: var(--coral-bg); color: var(--coral); }
+
+  /* History trail */
+  .history-container {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+  }
+  .history-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-soft);
+      margin: 0 0 12px 0;
+  }
+  .history-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+  }
+  .history-chips::-webkit-scrollbar { height: 4px; }
+  .history-chips::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  
+  .history-chip {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      font-size: 13px;
+      white-space: nowrap;
+      cursor: pointer;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.2s;
+  }
+  .history-chip:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+  }
+
+  /* Toast Notification */
+  #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text);
+      color: var(--bg);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 100;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Standard UI shadow ok? Prompt says no drop shadows. Removing shadow. */
+      box-shadow: none;
+      border: 1px solid var(--border);
+  }
+  #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Error state */
+  .retry-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s;
+  }
+  .retry-btn:hover { background: var(--primary-hover); }
+
+</style>
+</head>
+<body>
+<div class="layout">
+    <div class="map-section" id="map-container">
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Search for a city or state..." autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+        
+        <div class="map-wrapper">
+            <svg id="india-map" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet">
+                <g id="states-layer"></g>
+                <g id="pin-layer"></g>
+            </svg>
+            <div id="hover-tooltip" class="hidden"></div>
+            <div id="live-coords" class="hidden">--.----°N / --.----°E</div>
+        </div>
+    </div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title" id="sidebar-region-title">Explore Locations</h2>
+            <div class="sidebar-coords" id="sidebar-coords-display">Click the map to select</div>
+        </div>
+        
+        <div class="sidebar-body" id="sidebar-content">
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                </svg>
+                <h2>Discover India</h2>
+                <p>Click anywhere on the map or search for a city to uncover its cultural heritage.</p>
+            </div>
+        </div>
+        
+        <div class="history-container">
+            <h3 class="history-title">Recently explored</h3>
+            <div class="history-chips" id="history-chips">
+                <!-- Chips will render here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+const GROQ_API_KEY = "gsk_xxxxxxxxxxxxxxxxxxxxxxxx"; // replace with your key
+
+const CITIES = [
+  {"city": "Mumbai", "state": "Maharashtra", "lat": 19.0760, "lon": 72.8777},
+  {"city": "Delhi", "state": "Delhi", "lat": 28.7041, "lon": 77.1025},
+  {"city": "Bengaluru", "state": "Karnataka", "lat": 12.9716, "lon": 77.5946},
+  {"city": "Hyderabad", "state": "Telangana", "lat": 17.3850, "lon": 78.4867},
+  {"city": "Ahmedabad", "state": "Gujarat", "lat": 23.0225, "lon": 72.5714},
+  {"city": "Chennai", "state": "Tamil Nadu", "lat": 13.0827, "lon": 80.2707},
+  {"city": "Kolkata", "state": "West Bengal", "lat": 22.5726, "lon": 88.3639},
+  {"city": "Surat", "state": "Gujarat", "lat": 21.1702, "lon": 72.8311},
+  {"city": "Pune", "state": "Maharashtra", "lat": 18.5204, "lon": 73.8567},
+  {"city": "Jaipur", "state": "Rajasthan", "lat": 26.9124, "lon": 75.7873},
+  {"city": "Lucknow", "state": "Uttar Pradesh", "lat": 26.8467, "lon": 80.9462},
+  {"city": "Kanpur", "state": "Uttar Pradesh", "lat": 26.4499, "lon": 80.3319},
+  {"city": "Nagpur", "state": "Maharashtra", "lat": 21.1458, "lon": 79.0882},
+  {"city": "Indore", "state": "Madhya Pradesh", "lat": 22.7196, "lon": 75.8577},
+  {"city": "Thane", "state": "Maharashtra", "lat": 19.2183, "lon": 72.9781},
+  {"city": "Bhopal", "state": "Madhya Pradesh", "lat": 23.2599, "lon": 77.4126},
+  {"city": "Visakhapatnam", "state": "Andhra Pradesh", "lat": 17.6868, "lon": 83.2185},
+  {"city": "Pimpri-Chinchwad", "state": "Maharashtra", "lat": 18.6298, "lon": 73.7997},
+  {"city": "Patna", "state": "Bihar", "lat": 25.5941, "lon": 85.1376},
+  {"city": "Vadodara", "state": "Gujarat", "lat": 22.3072, "lon": 73.1812},
+  {"city": "Ghaziabad", "state": "Uttar Pradesh", "lat": 28.6692, "lon": 77.4538},
+  {"city": "Ludhiana", "state": "Punjab", "lat": 30.9010, "lon": 75.8573},
+  {"city": "Agra", "state": "Uttar Pradesh", "lat": 27.1767, "lon": 78.0081},
+  {"city": "Nashik", "state": "Maharashtra", "lat": 20.0059, "lon": 73.7900},
+  {"city": "Faridabad", "state": "Haryana", "lat": 28.4089, "lon": 77.3178},
+  {"city": "Meerut", "state": "Uttar Pradesh", "lat": 28.9845, "lon": 77.7064},
+  {"city": "Rajkot", "state": "Gujarat", "lat": 22.3039, "lon": 70.8022},
+  {"city": "Kalyan-Dombivli", "state": "Maharashtra", "lat": 19.2403, "lon": 73.1305},
+  {"city": "Vasai-Virar", "state": "Maharashtra", "lat": 19.3919, "lon": 72.8397},
+  {"city": "Varanasi", "state": "Uttar Pradesh", "lat": 25.3176, "lon": 82.9739},
+  {"city": "Srinagar", "state": "Jammu and Kashmir", "lat": 34.0837, "lon": 74.7973},
+  {"city": "Aurangabad", "state": "Maharashtra", "lat": 19.8762, "lon": 75.3433},
+  {"city": "Dhanbad", "state": "Jharkhand", "lat": 23.7957, "lon": 86.4304},
+  {"city": "Amritsar", "state": "Punjab", "lat": 31.6340, "lon": 74.8723},
+  {"city": "Navi Mumbai", "state": "Maharashtra", "lat": 19.0330, "lon": 73.0297},
+  {"city": "Allahabad", "state": "Uttar Pradesh", "lat": 25.4358, "lon": 81.8463},
+  {"city": "Ranchi", "state": "Jharkhand", "lat": 23.3441, "lon": 85.3096},
+  {"city": "Howrah", "state": "West Bengal", "lat": 22.5958, "lon": 88.3110},
+  {"city": "Coimbatore", "state": "Tamil Nadu", "lat": 11.0168, "lon": 76.9558},
+  {"city": "Jabalpur", "state": "Madhya Pradesh", "lat": 23.1815, "lon": 79.9864},
+  {"city": "Gwalior", "state": "Madhya Pradesh", "lat": 26.2183, "lon": 78.1828},
+  {"city": "Vijayawada", "state": "Andhra Pradesh", "lat": 16.5062, "lon": 80.6480},
+  {"city": "Jodhpur", "state": "Rajasthan", "lat": 26.2389, "lon": 73.0243},
+  {"city": "Madurai", "state": "Tamil Nadu", "lat": 9.9252, "lon": 78.1198},
+  {"city": "Raipur", "state": "Chhattisgarh", "lat": 21.2514, "lon": 81.6296},
+  {"city": "Kota", "state": "Rajasthan", "lat": 25.1825, "lon": 75.8391},
+  {"city": "Guwahati", "state": "Assam", "lat": 26.1445, "lon": 91.7362},
+  {"city": "Chandigarh", "state": "Chandigarh", "lat": 30.7333, "lon": 76.7794},
+  {"city": "Solapur", "state": "Maharashtra", "lat": 17.6599, "lon": 75.9064},
+  {"city": "Hubballi-Dharwad", "state": "Karnataka", "lat": 15.3647, "lon": 75.1240}
+];
+
+const svg = document.getElementById('india-map');
+const statesLayer = document.getElementById('states-layer');
+const pinLayer = document.getElementById('pin-layer');
+const hoverTooltip = document.getElementById('hover-tooltip');
+const liveCoords = document.getElementById('live-coords');
+const mapContainer = document.getElementById('map-container');
+const toast = document.getElementById('toast');
+const sidebarContent = document.getElementById('sidebar-content');
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const historyChipsContainer = document.getElementById('history-chips');
+
+let mapConfig = { scale: 1, offsetX: 0, offsetY: 0, cosFactor: 1, minLon: 0, minLat: 0, height: 800 };
+let explorationHistory = [];
+
+initMap();
+
+async function initMap() {
+    try {
+        const res = await fetch('https://code.highcharts.com/mapdata/countries/in/in-all.geo.json');
+        const geojson = await res.json();
+        
+        let minLon = Infinity, maxLon = -Infinity;
+        let minLat = Infinity, maxLat = -Infinity;
+
+        function updateBounds(coords) {
+            const [lon, lat] = coords;
+            if (lon < minLon) minLon = lon;
+            if (lon > maxLon) maxLon = lon;
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+        }
+
+        geojson.features.forEach(f => {
+            const g = f.geometry;
+            if (!g) return;
+            if (g.type === 'Polygon') {
+                g.coordinates[0].forEach(updateBounds);
+            } else if (g.type === 'MultiPolygon') {
+                g.coordinates.forEach(p => p[0].forEach(updateBounds));
+            }
+        });
+
+        const width = 800, height = 800;
+        const lonRange = maxLon - minLon;
+        const latRange = maxLat - minLat;
+        const centerLat = (minLat + maxLat) / 2;
+        const cosFactor = Math.cos(centerLat * Math.PI / 180);
+        
+        const adjLatRange = latRange / cosFactor;
+        const scale = Math.min(width / lonRange, height / adjLatRange) * 0.95;
+        
+        const offsetX = (width - lonRange * scale) / 2;
+        const offsetY = (height - adjLatRange * scale) / 2;
+        
+        mapConfig = { scale, offsetX, offsetY, cosFactor, minLon, minLat, height };
+
+        function project(lon, lat) {
+            return {
+                x: (lon - minLon) * scale + offsetX,
+                y: height - ((lat - minLat) / cosFactor * scale + offsetY)
+            };
+        }
+
+        function createPathData(polygon) {
+            let d = "";
+            polygon.forEach(ring => {
+                ring.forEach((coord, i) => {
+                    const {x, y} = project(coord[0], coord[1]);
+                    d += (i === 0 ? `M${x},${y} ` : `L${x},${y} `);
+                });
+                d += "Z ";
+            });
+            return d;
+        }
+
+        geojson.features.forEach(f => {
+            if (!f.geometry) return;
+            let d = "";
+            if (f.geometry.type === 'Polygon') {
+                d = createPathData(f.geometry.coordinates);
+            } else if (f.geometry.type === 'MultiPolygon') {
+                f.geometry.coordinates.forEach(poly => { d += createPathData(poly); });
+            }
+            if (d) {
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", d.trim());
+                path.setAttribute("class", "state-path");
+                path.setAttribute("data-name", f.properties.name || f.properties.NAME_1);
+                statesLayer.appendChild(path);
+            }
+        });
+    } catch (e) {
+        console.error("Map load error", e);
+        showToast("Error loading map layout");
+    }
+}
+
+// Projection utilities
+function inverseProject(x, y) {
+   const lon = (x - mapConfig.offsetX) / mapConfig.scale + mapConfig.minLon;
+   const lat = (mapConfig.height - y - mapConfig.offsetY) / mapConfig.scale * mapConfig.cosFactor + mapConfig.minLat;
+   return {lon, lat};
+}
+function getSVGCoords(clientX, clientY) {
+   const pt = svg.createSVGPoint();
+   pt.x = clientX;
+   pt.y = clientY;
+   const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+   return { x: svgP.x, y: svgP.y };
+}
+
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+    }, 3000);
+}
+
+// Mouse events
+svg.addEventListener('mousemove', (e) => {
+    const {x, y} = getSVGCoords(e.clientX, e.clientY);
+    const {lon, lat} = inverseProject(x, y);
+    
+    liveCoords.textContent = `${lat.toFixed(4)}°N / ${lon.toFixed(4)}°E`;
+    liveCoords.classList.remove('hidden');
+
+    if (e.target.tagName !== 'path') {
+        hoverTooltip.classList.add('hidden');
+        return;
+    }
+    
+    const name = e.target.getAttribute('data-name');
+    if (name) {
+        hoverTooltip.textContent = name;
+        hoverTooltip.classList.remove('hidden');
+        
+        const rect = mapContainer.getBoundingClientRect();
+        hoverTooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+        hoverTooltip.style.top = (e.clientY - rect.top + 15) + 'px';
+    }
+});
+
+svg.addEventListener('mouseleave', () => {
+    hoverTooltip.classList.add('hidden');
+    liveCoords.classList.add('hidden');
+});
+
+svg.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'path') {
+        showToast("Please click inside India's boundary");
+        return;
+    }
+    const stateName = e.target.getAttribute('data-name');
+    const {x, y} = getSVGCoords(e.clientX, e.clientY);
+    const {lon, lat} = inverseProject(x, y);
+    
+    // Auto-derive generic region for precise click
+    const regionName = "Clicked location"; 
+    
+    handleLocationSelect(regionName, stateName, lat, lon);
+});
+
+// Search flow
+searchInput.addEventListener('input', (e) => {
+    const val = e.target.value.toLowerCase();
+    if (!val) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    const filtered = CITIES.filter(c => c.city.toLowerCase().includes(val) || c.state.toLowerCase().includes(val));
+    if (filtered.length > 0) {
+        searchResults.innerHTML = filtered.slice(0, 10).map(c => `
+            <div class="search-result-item" onclick="selectSearchItem('${c.city}', '${c.state}', ${c.lat}, ${c.lon})">
+                <div class="search-result-city">${c.city}</div>
+                <div class="search-result-state">${c.state}</div>
+            </div>
+        `).join('');
+        searchResults.style.display = 'block';
+    } else {
+        searchResults.style.display = 'none';
+    }
+});
+
+function selectSearchItem(city, state, lat, lon) {
+    searchInput.value = city;
+    searchResults.style.display = 'none';
+    handleLocationSelect(city, state, lat, lon);
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+        searchResults.style.display = 'none';
+    }
+});
+
+function handleLocationSelect(region, state, lat, lon) {
+    dropPinAt(lon, lat);
+    updateSidebarCoords(lat, lon);
+    fetchGroqData(region, state, lat, lon);
+    addToHistory(region, state, lat, lon);
+}
+
+function dropPinAt(lon, lat) {
+    const pX = (lon - mapConfig.minLon) * mapConfig.scale + mapConfig.offsetX;
+    const pY = mapConfig.height - ((lat - mapConfig.minLat) / mapConfig.cosFactor * mapConfig.scale + mapConfig.offsetY);
+    
+    pinLayer.innerHTML = `
+        <g transform="translate(${pX}, ${pY})">
+            <animateTransform attributeName="transform" type="translate" from="${pX}, ${pY - 50}" to="${pX}, ${pY}" dur="0.3s" calcMode="spline" keySplines="0.25 0.46 0.45 0.94" fill="freeze" />
+            <path d="M 0 0 L -12 -20 A 15 15 0 1 1 12 -20 Z" fill="var(--danger)" />
+            <circle cx="0" cy="-24" r="5" fill="#ffffff" />
+            <animate attributeName="opacity" from="0" to="1" dur="0.3s" />
+        </g>
+    `;
+}
+
+function updateSidebarCoords(lat, lon) {
+    document.getElementById('sidebar-coords-display').textContent = `${lat.toFixed(4)}°N / ${lon.toFixed(4)}°E`;
+}
+
+function addToHistory(region, state, lat, lon) {
+    // Prevent exactly identical consecutive clicks from spamming history
+    if (explorationHistory.length > 0) {
+        const last = explorationHistory[0];
+        if (last.lat === lat && last.lon === lon) return;
+    }
+    
+    explorationHistory.unshift({ region, state, lat, lon });
+    if (explorationHistory.length > 5) explorationHistory.pop();
+    
+    historyChipsContainer.innerHTML = explorationHistory.map(item => `
+        <div class="history-chip" onclick="handleLocationSelect('${item.region}', '${item.state}', ${item.lat}, ${item.lon})">
+            ${item.region === 'Clicked location' ? `${item.lat.toFixed(2)}, ${item.lon.toFixed(2)}` : item.region}
+        </div>
+    `).join('');
+}
+
+async function fetchGroqData(region, state, lat, lon) {
+    showSkeleton();
+    document.getElementById('sidebar-region-title').textContent = region === 'Clicked location' ? state : `${region}, ${state}`;
+    
+    const prompt = `Identify the cultural data for the location ${region === 'Clicked location' ? '' : region + ','} ${state} located around coordinates ${lat}, ${lon}.
+Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble, no explanations. Use this exact structure:
+{
+  "region": "${region}",
+  "state": "${state}",
+  "overview": "Short description of cultural significance",
+  "history": "Short history",
+  "festivals": ["Festival 1"],
+  "cuisine": ["Dish 1"],
+  "artForms": ["Art 1"],
+  "languages": ["Lang 1"],
+  "architecture": "Styles and examples",
+  "mustVisit": ["Place 1"],
+  "funFact": "Interesting fact"
+}`;
+
+    try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: prompt }],
+                max_tokens: 1000
+            })
+        });
+        
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        
+        const data = await res.json();
+        const content = data.choices[0].message.content.replace(/```json|```/gi, "").trim();
+        const jsonContent = JSON.parse(content);
+        
+        renderData(jsonContent);
+    } catch (e) {
+        console.error("Groq fetch error:", e);
+        renderError(region, state, lat, lon);
+    }
+}
+
+function showSkeleton() {
+    sidebarContent.innerHTML = `
+        <div class="info-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="info-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text short"></div>
+        </div>
+        <div class="info-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="tags-container">
+                <div class="skeleton" style="width: 80px; height: 24px; border-radius: 12px;"></div>
+                <div class="skeleton" style="width: 100px; height: 24px; border-radius: 12px;"></div>
+            </div>
+        </div>
+    `;
+}
+
+function renderData(data) {
+    const renderTags = (items, colorClass) => {
+        if (!items || !Array.isArray(items) || items.length === 0) return '<p class="info-text">Not specified</p>';
+        return `<div class="tags-container">${items.map(i => `<span class="tag tag-${colorClass}">${i}</span>`).join('')}</div>`;
+    };
+
+    sidebarContent.innerHTML = `
+        <div class="info-card">
+            <h3 class="info-title">Region Overview</h3>
+            <p class="info-text">${data.overview || 'Info not available'}</p>
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">History & Heritage</h3>
+            <p class="info-text">${data.history || 'Info not available'}</p>
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Festivals</h3>
+            ${renderTags(data.festivals, 'amber')}
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Cuisine</h3>
+            ${renderTags(data.cuisine, 'green')}
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Art Forms</h3>
+            ${renderTags(data.artForms, 'purple')}
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Languages</h3>
+            ${renderTags(data.languages, 'blue')}
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Architecture</h3>
+            <p class="info-text">${data.architecture || 'Info not available'}</p>
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Must Visit</h3>
+            ${renderTags(data.mustVisit, 'coral')}
+        </div>
+        <div class="info-card">
+            <h3 class="info-title">Fun Fact 💡</h3>
+            <p class="info-text">${data.funFact || 'Info not available'}</p>
+        </div>
+    `;
+    
+    document.getElementById('sidebar-region-title').textContent = data.region === 'Clicked location' ? data.state : `${data.region}, ${data.state}`;
+}
+
+function renderError(region, state, lat, lon) {
+    sidebarContent.innerHTML = `
+        <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h2>Could not fetch data</h2>
+            <p>There was an error communicating with Groq AI or parsing the response.</p>
+            <button class="retry-btn" onclick="fetchGroqData('${region}', '${state}', ${lat}, ${lon})">Retry</button>
+        </div>
+    `;
+}
+</script>
+</body>
+</html>

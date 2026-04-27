@@ -37,6 +37,9 @@ class ExtractionAgent(BaseAgent):
             - knowledge_type (str): e.g., "folk_remedy", "ritual", "story", "other"
             - details (dict): Key details extracted (ingredients, steps, characters, etc.)
             - cultural_context (str): The cultural significance or context.
+            - region (str): Specific geographic region associated with the cultural knowledge (e.g., "Kerala, India"). If unknown, return "unknown".
+            - latitude (float or null): Estimated precise latitude of the region (e.g. 10.8505). Return null if indeterminable.
+            - longitude (float or null): Estimated precise longitude of the region (e.g. 76.2711). Return null if indeterminable.
             
             Do not add any markdown formatting like ```json ... ```. Just the raw JSON string.
             """
