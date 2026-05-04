@@ -73,6 +73,8 @@ async def upload_audio(
     request: Request,
     file: UploadFile = File(...), 
     contributor: str = Form("Anonymous"), 
+    state: str = Form(None),
+    city: str = Form(None),
     consent: bool = Form(False),
     user_payload: dict = Depends(verify_token)
 ) -> dict:
@@ -122,6 +124,8 @@ async def upload_audio(
         "audio_url": audio_url,
         "original_filename": filename,
         "contributor": contributor,
+        "state": state,
+        "city": city,
         "consent": consent,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
@@ -183,31 +187,30 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
         await log_stage(record_id, "extraction", "started")
         extraction_data = await agent_manager.process_extraction(transcript)
         
-        # Extract metadata from extraction_data
-        generated_title = extraction_data.get("title") if isinstance(extraction_data, dict) else None
-        region_name = extraction_data.get("region_name") if isinstance(extraction_data, dict) else None
-        latitude = extraction_data.get("latitude") if isinstance(extraction_data, dict) else None
-        longitude = extraction_data.get("longitude") if isinstance(extraction_data, dict) else None
-        
-        await db.db.knowledge_content.update_one(
-            {"knowledge_id": record_id},
-            {"$set": {"extraction_data": extraction_data}}
-        )
-        
+        # Extract title and location from extraction_data
         update_fields = {}
-        # Update metadata title if generated
-        if generated_title:
-            update_fields["title"] = generated_title
-        if region_name:
-            update_fields["region_name"] = region_name
-        if latitude is not None and longitude is not None:
-            try:
-                update_fields["latitude"] = float(latitude)
-                update_fields["longitude"] = float(longitude)
-            except ValueError:
-                pass # Ignore if it's not a valid float
+        region_val = "unknown"
+        if isinstance(extraction_data, dict):
+            if generated_title := extraction_data.get("title"):
+                update_fields["title"] = generated_title
                 
-        # Update metadata if generated
+            region = extraction_data.get("region")
+            if region and region.lower() != "unknown":
+                update_fields["region"] = region
+                region_val = region
+                
+            lat = extraction_data.get("latitude")
+            lng = extraction_data.get("longitude")
+            if lat is not None and lng is not None:
+                try:
+                    update_fields["location"] = {
+                        "type": "Point",
+                        "coordinates": [float(lng), float(lat)]
+                    }
+                except (ValueError, TypeError):
+                    pass
+        
+        # Update metadata fields if present
         if update_fields:
             await db.db.knowledge.update_one(
                 {"_id": record_id},
@@ -238,7 +241,7 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
             "extraction_data": extraction_data,
             "category": category,
             "context_analysis": context_data,
-            "region": "unknown", 
+            "region": region_val, 
             "language": language,
             "knowledge_id": record_id
         }

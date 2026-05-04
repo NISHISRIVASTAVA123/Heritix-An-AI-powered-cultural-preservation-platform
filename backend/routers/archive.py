@@ -4,6 +4,15 @@ from typing import List, Optional
 
 router = APIRouter()
 
+def serialize_object_ids(data):
+    if isinstance(data, dict):
+        return {k: serialize_object_ids(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [serialize_object_ids(i) for i in data]
+    elif type(data).__name__ == "ObjectId":
+        return str(data)
+    return data
+
 @router.get("/all")
 async def get_all_records() -> List[dict]:
     """
@@ -59,15 +68,32 @@ async def get_all_records() -> List[dict]:
         # but ArchivePage doesn't use it except for summary.
         if "content" in r: del r["content"]
         
-        formatted_records.append(r)
+        formatted_records.append(serialize_object_ids(r))
         
     return formatted_records
+
+CITY_ALIASES = {
+    "new delhi": ["delhi", "new delhi"],
+    "delhi": ["delhi", "new delhi"],
+    "mumbai": ["mumbai", "bombay"],
+    "bombay": ["mumbai", "bombay"],
+    "bengaluru": ["bengaluru", "bangalore"],
+    "bangalore": ["bengaluru", "bangalore"],
+    "chennai": ["chennai", "madras"],
+    "madras": ["chennai", "madras"],
+    "kolkata": ["kolkata", "calcutta"],
+    "calcutta": ["kolkata", "calcutta"],
+    "pune": ["pune", "poona"],
+    "poona": ["pune", "poona"],
+}
 
 @router.get("/search")
 async def search_records(
     q: Optional[str] = None,
     category: Optional[str] = None,
-    language: Optional[str] = None
+    language: Optional[str] = None,
+    state: Optional[str] = None,
+    city: Optional[str] = None
 ) -> List[dict]:
     """
     Search and stream completed records based on query, category, and language.
@@ -93,6 +119,13 @@ async def search_records(
         match_query["category"] = category
     if language:
         match_query["detected_language"] = language # Use detected_language
+    if state:
+        match_query["state"] = state
+    if city:
+        normalized_city = city.lower()
+        search_cities = CITY_ALIASES.get(normalized_city, [city])
+        # Use regex for case-insensitive exact matching of any alias
+        match_query["city"] = {"$regex": f"^({'|'.join(search_cities)})$", "$options": "i"}
 
     if match_query:
         pipeline.append({"$match": match_query})
@@ -145,8 +178,96 @@ async def search_records(
              edu = content.get("education_data", {})
              if edu:
                  r["summary"] = edu.get("summary")
-        formatted_records.append(r)
+        
+        # Remove content object to keep response light if not needed, 
+        if "content" in r: del r["content"]
+        
+        formatted_records.append(serialize_object_ids(r))
 
+    return formatted_records
+
+@router.get("/nearby")
+async def get_nearby_records(
+    lat: float,
+    lng: float,
+    radius: int = 50000,
+    category: Optional[str] = None,
+    language: Optional[str] = None
+) -> List[dict]:
+    """
+    Search completed records geographically using a 2dsphere index.
+    
+    Args:
+        lat (float): Latitude of the center point.
+        lng (float): Longitude of the center point.
+        radius (int): Search radius in meters (default 50km).
+        category (Optional[str]): Filters records mapped to this category.
+        language (Optional[str]): Filters records matching the language code.
+        
+    Returns:
+         List[dict]: Records within the area sorted by distance.
+    """
+    match_query = {
+        "processing_status": "completed",
+        "title": {"$exists": True, "$ne": None},
+        "transcript": {"$exists": True, "$ne": None},
+        "location": {"$exists": True, "$ne": None}
+    }
+    
+    if category and category != "All":
+        match_query["category"] = category
+    if language:
+        match_query["detected_language"] = language
+        
+    pipeline = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": [lng, lat]},
+                "distanceField": "distance",
+                "maxDistance": radius,
+                "spherical": True,
+                "query": match_query
+            }
+        },
+        {"$limit": 100},
+        {
+            "$lookup": {
+                "from": "knowledge_content",
+                "localField": "_id",
+                "foreignField": "knowledge_id",
+                "as": "content"
+            }
+        },
+        {"$unwind": {"path": "$content", "preserveNullAndEmptyArrays": True}}
+    ]
+    
+    records = await db.db.knowledge.aggregate(pipeline).to_list(100)
+    
+    formatted_records = []
+    for r in records:
+        r["_id"] = str(r["_id"])
+        
+        # Ensure default values
+        if "category" not in r: r["category"] = "Uncategorized"
+        if "transcript" not in r: r["transcript"] = ""
+        if "title" not in r: r["title"] = "Untitled Recording"
+        if "contributor" not in r: r["contributor"] = "Anonymous"
+        
+        # Format location for frontend convenience
+        if "location" in r and "coordinates" in r["location"]:
+            coords = r["location"]["coordinates"]
+            r["longitude"] = coords[0]
+            r["latitude"] = coords[1]
+            
+        content = r.get("content", {})
+        if content:
+             edu = content.get("education_data", {})
+             if edu:
+                 r["summary"] = edu.get("summary")
+        
+        if "content" in r: del r["content"]
+        formatted_records.append(serialize_object_ids(r))
+        
     return formatted_records
 
 @router.get("/{record_id}")
