@@ -2,17 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import dynamic from 'next/dynamic';
 import KnowledgeCard from '@/components/KnowledgeCard';
 import { apiUrl } from '@/lib/api';
-
-// Dynamic import for Leaflet map to strictly enforce client-side execution
-const MapWrapper = dynamic(() => import('@/components/CulturalMap'), {
-    ssr: false,
-    loading: () => <div className="w-full h-full bg-surface-container-highest/20 animate-pulse rounded-2xl flex items-center justify-center min-h-[500px]">
-        <span className="material-symbols-outlined text-4xl text-primary animate-spin">autorenew</span>
-    </div>
-});
+import Link from 'next/link';
 
 interface Record {
     _id: string;
@@ -34,45 +26,21 @@ export default function ArchivePage() {
     const [selectedCategory, setSelectedCategory] = useState('Category');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    // Feature integration: View Mode & Map State
-    const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-    const [center, setCenter] = useState({ lat: 20.5937, lng: 78.9629 });
-
-    const fetchRecords = useCallback(async (currentLat?: number, currentLng?: number) => {
+    const fetchRecords = useCallback(async () => {
         setLoading(true);
         try {
-            if (viewMode === 'map' && currentLat !== undefined && currentLng !== undefined) {
-                 const res = await axios.get(apiUrl('/archive/nearby'), {
-                    params: {
-                        lat: currentLat,
-                        lng: currentLng,
-                        radius: 500000, // Search within 500km radius when panning
-                        category: selectedCategory === 'Category' ? '' : selectedCategory
-                    }
-                });
-                setRecords(res.data);
-            } else {
-                const res = await axios.get(apiUrl('/archive/all'));
-                setRecords(res.data);
-            }
+            const res = await axios.get(apiUrl('/archive/all'));
+            setRecords(res.data);
         } catch (error) {
             console.error('Error fetching records:', error);
         } finally {
             setLoading(false);
         }
-    }, [viewMode, selectedCategory]);
+    }, []);
 
     useEffect(() => {
-        if (viewMode === 'grid') {
-            fetchRecords();
-        } else {
-            fetchRecords(center.lat, center.lng);
-        }
-    }, [fetchRecords, viewMode, center]);
-
-    const handleMapChange = (lat: number, lng: number) => {
-        setCenter({ lat, lng });
-    };
+        fetchRecords();
+    }, [fetchRecords]);
 
     const categories = ['Category', 'Folk Medicine', 'Agriculture', 'Folklore & Stories', 'Cultural Rituals', 'Life Advice & Ethics'];
 
@@ -81,8 +49,7 @@ export default function ArchivePage() {
         const matchesSearch = (record.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
             (record.transcript?.toLowerCase() || '').includes(searchQuery.toLowerCase());
         
-        // Backend handles category in Map mode, but we enforce it locally for Grid mode just in case
-        const matchesCategory = selectedCategory === 'Category' || record.category === selectedCategory || viewMode === 'map';
+        const matchesCategory = selectedCategory === 'Category' || record.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
@@ -99,19 +66,18 @@ export default function ArchivePage() {
                     {/* View Toggle */}
                     <div className="bg-surface-container-high p-1 rounded-full flex items-center self-start w-fit">
                         <button 
-                            onClick={() => setViewMode('grid')}
-                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all ${viewMode === 'grid' ? 'bg-primary text-on-primary shadow-md' : 'text-on-surface hover:bg-surface-variant'}`}
+                            className="px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all bg-primary text-on-primary shadow-md cursor-default"
                         >
                             <span className="material-symbols-outlined text-sm">grid_view</span>
                             Grid
                         </button>
-                        <button 
-                            onClick={() => setViewMode('map')}
-                            className={`px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all ${viewMode === 'map' ? 'bg-primary text-on-primary shadow-md' : 'text-on-surface hover:bg-surface-variant'}`}
+                        <Link 
+                            href="/explore"
+                            className="px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all text-on-surface hover:bg-surface-variant"
                         >
                             <span className="material-symbols-outlined text-sm">map</span>
                             Map
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -169,19 +135,10 @@ export default function ArchivePage() {
             </section>
 
             {/* Content Area */}
-            {loading && viewMode === 'grid' ? (
+            {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 space-y-4">
                     <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                     <p className="text-on-surface-variant font-bold tracking-widest text-sm uppercase animate-pulse">Loading Archive...</p>
-                </div>
-            ) : viewMode === 'map' ? (
-                <div className="w-full h-[600px] rounded-2xl relative mb-12 shadow-lg border border-outline-variant/20 overflow-hidden">
-                    {loading && (
-                        <div className="absolute inset-0 bg-surface/50 z-10 flex flex-col items-center justify-center backdrop-blur-sm">
-                            <span className="material-symbols-outlined animate-spin text-4xl text-primary text-opacity-80">autorenew</span>
-                        </div>
-                    )}
-                    <MapWrapper records={filteredRecords} onMapChange={handleMapChange} />
                 </div>
             ) : filteredRecords.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-surface-container-low rounded-2xl border-2 border-dashed border-outline-variant/30">

@@ -32,7 +32,6 @@ export default function Navbar() {
       <div className="hidden md:flex items-center gap-2">
         {[
           { name: 'Home', href: '/' },
-          { name: 'Map Explorer', href: '/map' },
           { name: 'Archive', href: '/archive' },
           { name: 'AI Explorer', href: '/explore' },
           { name: 'Record Stories', href: '/capture' }
