@@ -5,7 +5,7 @@ from .categorization_agent import CategorizationAgent
 from .context_agent import ContextAgent
 from .education_agent import EducationAgent
 from .translation_agent import TranslationAgent
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Helper for Retry Logic
 # Retries 3 times, waiting 2s, 4s, 8s...

@@ -71,6 +71,7 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
                 </div>
 
                 <div className="mb-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm pointer-events-none" alt={title} src={imgUrl} />
                     <h3 className="text-2xl font-bold font-headline text-on-surface mb-3 leading-tight">{title}</h3>
                     <p className="text-on-surface-variant font-body leading-relaxed line-clamp-2">

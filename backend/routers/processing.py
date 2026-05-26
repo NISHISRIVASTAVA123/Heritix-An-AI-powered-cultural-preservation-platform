@@ -3,7 +3,7 @@ from services.audio_service import audio_service
 from services.stt_service import stt_service
 from agents.agent_manager import AgentManager
 from db.mongo import db
-from models.knowledge_model import KnowledgeMetadata, KnowledgeContent, ProcessingLog, ProcessingStatus
+from models.knowledge_model import ProcessingStatus
 from datetime import datetime
 import asyncio
 import uuid

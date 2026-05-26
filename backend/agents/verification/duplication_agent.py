@@ -35,7 +35,6 @@ class DuplicationAgent(BaseAgent):
         """
         transcript = input_data.get("transcript", "")
         category = input_data.get("category", "")
-        region = input_data.get("region", "")
         knowledge_id = input_data.get("knowledge_id", "")
         
         # 1. Generate semantic fingerprint

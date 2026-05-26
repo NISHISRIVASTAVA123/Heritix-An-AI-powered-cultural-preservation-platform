@@ -55,5 +55,5 @@ class TranslationAgent(BaseAgent):
             if content.endswith("```"):
                 content = content[:-3]
             return json.loads(content.strip())
-        except:
+        except Exception:
             return {"en": "Translation failed", "error": "JSON parse error", "raw": response.content}

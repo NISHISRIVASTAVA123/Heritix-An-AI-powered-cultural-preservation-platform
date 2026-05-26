@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import Optional, Dict
 from datetime import datetime
+from enum import Enum
 
 class KnowledgeBase(BaseModel):
     title: str
@@ -11,8 +12,6 @@ class KnowledgeBase(BaseModel):
 
 class KnowledgeCreate(KnowledgeBase):
     pass
-
-from enum import Enum
 
 class ProcessingStatus(str, Enum):
     UPLOADED = "uploaded"

@@ -28,6 +28,7 @@ export default function Home() {
             <div className="relative group">
               <div className="absolute -inset-4 bg-primary/5 rounded-xl blur-3xl group-hover:bg-primary/10 transition-all duration-700"></div>
               <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-1000" alt="Close up of elderly hands holding a vintage photograph" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByGhz_I7gC-YOiistrEm_vx0bVs2VolV0i4igD22hI3koLN-n_8rbvUH-fWh8XMaWMim6LQvMdz33rGrX51kcm7UbjenzBQYtXLntFucqEJ3WX3A8bI0r_9QWcTga662NebWIh2824hz8PtDZGW1HGg3fuSk0BvkOoKG2hWhcKrPWaEHRcDl0ncb9yFwjVvl9sVoR-b7u0TCFaGDjPH5ehKOMNDVFOj-jKjJeuCZf7wTtxF1gU8I93CGzSIveM5JcRannqgBIqfAOo" fetchPriority="high" decoding="sync" />
               </div>
             </div>
@@ -67,7 +68,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-on-surface">Preserve</h3>
               <p className="text-on-surface-variant leading-relaxed text-lg">
-                Stored in a decentralized digital ledger, your family's wisdom is encrypted and archived for centuries, resistant to time and technological decay.
+                Stored in a decentralized digital ledger, your family&apos;s wisdom is encrypted and archived for centuries, resistant to time and technological decay.
               </p>
             </div>
           </div>
@@ -80,6 +81,7 @@ export default function Home() {
           <div className="w-full lg:w-1/2 relative">
             <div className="bg-surface-container-high rounded-lg p-8 md:p-12 rotate-2 group hover:rotate-0 transition-all duration-700">
               <div className="aspect-square bg-surface-container-lowest rounded-lg overflow-hidden shadow-inner mb-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img className="w-full h-full object-cover" alt="Ancient weathered leather book cover with gold detailing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8ouNcFVISpXNpshRrF5SxBIh0u43PM3tR1XhWS_rHdR9PZJ8RzIn_9C1ASRE2nPAzTP0U5XrqpMTEzrE0eeOwiG9MkwXnTGX-n5aqoYnsh--XTvxmDAklHzUJP9M5LX7cK736Wfe-4x5ZfDLQu2dgQirKtvZcCxY2b_F2YnOFADUPLea_5GYavLoYlGfvvV_RJ-_ZMIiAs_j_1FoUDaC1bjuWScVQ3M6JJuy0zcumZ0zH3qrSLpAv1a6EXE8lD_OMHCAIionlyV8d" />
               </div>
               <div className="space-y-4">
@@ -88,7 +90,7 @@ export default function Home() {
                   <span className="text-primary font-bold uppercase tracking-widest text-xs">Featured Entry</span>
                 </div>
                 <p className="font-headline italic text-2xl text-on-surface leading-snug">
-                  "The way my grandmother spoke of the river wasn't just geography; it was an ancestor. I never wanted to lose that rhythm."
+                  &quot;The way my grandmother spoke of the river wasn&apos;t just geography; it was an ancestor. I never wanted to lose that rhythm.&quot;
                 </p>
                 <p className="text-on-surface-variant font-body">— Elder Sarah Chen</p>
               </div>

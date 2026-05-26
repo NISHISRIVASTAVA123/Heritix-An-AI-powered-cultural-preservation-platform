@@ -148,13 +148,13 @@ export default function RecordDetailPage() {
 
     const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-    const getEduText = (field: any) => {
+    const getEduText = (field: string | { en?: string; hi?: string; native?: string } | undefined | null) => {
         if (!field) return null;
         if (typeof field === 'string') return field;
         return field[eduLang] || field.native || field.en;
     };
 
-    const getEduQuiz = (field: any) => {
+    const getEduQuiz = (field: { en?: { question: string; answer: string }[]; hi?: { question: string; answer: string }[]; native?: { question: string; answer: string }[]; } | { question: string; answer: string }[] | undefined | null) => {
         if (!field) return [];
         if (Array.isArray(field)) return field;
         return field[eduLang] || field.native || field.en || [];
@@ -408,7 +408,7 @@ export default function RecordDetailPage() {
                                 <h3 className="font-headline text-xl font-bold text-on-surface">Test Your Knowledge</h3>
                             </div>
                             <div className="space-y-4">
-                                {getEduQuiz(record.education_data.quiz_questions).map((q: any, i: number) => (
+                                {getEduQuiz(record.education_data.quiz_questions).map((q: { question: string; answer: string }, i: number) => (
                                     <div key={i} className="bg-surface p-5 rounded-2xl shadow-sm border border-secondary/10">
                                         <p className="font-bold text-on-surface mb-3 leading-snug">{i + 1}. {q.question}</p>
                                         <details className="group">

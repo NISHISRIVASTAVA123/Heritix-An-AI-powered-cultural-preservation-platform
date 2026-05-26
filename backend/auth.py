@@ -1,4 +1,3 @@
-import os
 import requests
 import jwt
 from typing import Dict, Any

@@ -88,14 +88,14 @@ export default function CapturePage() {
                     clearInterval(interval);
                     router.push(`/archive/${recordId}`);
                 } else if (data.status?.toLowerCase() === 'failed') {
-                    const pipelineLog = data.logs?.find((l: any) => l.stage === 'pipeline' && l.status === 'failed');
+                    const pipelineLog = data.logs?.find((l: ProcessingLogEntry) => l.stage === 'pipeline' && l.status === 'failed');
                     const errorMsg = pipelineLog?.error || "Processing failed. Please try again.";
                     setError(errorMsg);
                     setStatus('review');
                     clearInterval(interval);
                 }
-            } catch (e: any) {
-                if (axios.isCancel(e) || e?.name === 'CanceledError' || e?.code === 'ERR_CANCELED') return;
+            } catch (e: unknown) {
+                if (axios.isCancel(e) || (e as Error)?.name === 'CanceledError' || (e as { code?: string })?.code === 'ERR_CANCELED') return;
                 console.error("Polling error", e);
             }
         }, 2000);
@@ -337,7 +337,7 @@ export default function CapturePage() {
                     ) : (
                         <div className="mb-10 text-center">
                             <p className="font-headline font-semibold text-xl text-secondary italic">
-                                "You may speak in any language or dialect."
+                                &quot;You may speak in any language or dialect.&quot;
                             </p>
                             <p className="text-sm text-on-surface-variant/80 mt-2">
                                 Supported formats: WebM, OGG (auto-selected)

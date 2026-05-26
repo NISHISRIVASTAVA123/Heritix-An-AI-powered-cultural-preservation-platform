@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from db.mongo import db
 from typing import List, Optional
 
@@ -43,10 +43,14 @@ async def get_all_records() -> List[dict]:
         r["_id"] = str(r["_id"])
         
         # Ensure default values for required frontend fields
-        if "category" not in r: r["category"] = "Uncategorized"
-        if "transcript" not in r: r["transcript"] = ""
-        if "title" not in r: r["title"] = "Untitled Recording"
-        if "contributor" not in r: r["contributor"] = "Anonymous"
+        if "category" not in r:
+            r["category"] = "Uncategorized"
+        if "transcript" not in r:
+            r["transcript"] = ""
+        if "title" not in r:
+            r["title"] = "Untitled Recording"
+        if "contributor" not in r:
+            r["contributor"] = "Anonymous"
         
         # Flatten summary
         content = r.get("content", {})
@@ -57,7 +61,8 @@ async def get_all_records() -> List[dict]:
         
         # Remove content object to keep response light if not needed, 
         # but ArchivePage doesn't use it except for summary.
-        if "content" in r: del r["content"]
+        if "content" in r:
+            del r["content"]
         
         formatted_records.append(r)
         

@@ -52,6 +52,6 @@ class CategorizationAgent(BaseAgent):
             if content.endswith("```"):
                 content = content[:-3]
             return json.loads(content.strip())
-        except:
+        except Exception:
              return {"category": "Uncategorized", "raw": response.content}
 

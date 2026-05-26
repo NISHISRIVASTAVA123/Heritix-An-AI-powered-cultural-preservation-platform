@@ -15,6 +15,7 @@ export default function Navbar() {
   const { isSignedIn, isLoaded } = useAuth();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

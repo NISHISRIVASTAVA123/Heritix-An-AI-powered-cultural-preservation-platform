@@ -4,7 +4,7 @@ ffmpeg_path = r"C:\ffmpeg\bin"
 if ffmpeg_path not in os.environ["PATH"]:
     os.environ["PATH"] += os.pathsep + ffmpeg_path
 
-import whisper
+import whisper  # noqa: E402
 
 class STTService:
     def __init__(self):

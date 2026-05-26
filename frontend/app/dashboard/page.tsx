@@ -25,7 +25,7 @@ export default function DashboardPage() {
                     <h2 className="text-xl font-bold mb-4 text-primary">Your Contributions</h2>
                     <div className="text-center py-8 text-on-surface-variant">
                         <p className="text-4xl font-bold text-outline-variant mb-2">0</p>
-                        <p>You haven't contributed any stories yet.</p>
+                        <p>You haven&apos;t contributed any stories yet.</p>
                         <a href="/capture" className="text-secondary font-semibold mt-2 block hover:underline">Record Now</a>
                     </div>
                 </div>

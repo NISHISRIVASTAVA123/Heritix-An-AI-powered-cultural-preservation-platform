@@ -53,6 +53,7 @@ export default function TiltedCard({
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      whileHover={{ scale: scaleOnHover }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={`relative w-full h-full ${className}`}
       style={{
