@@ -1,6 +1,8 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from config import settings
 
+import inspect
+
 class MongoDB:
     client: AsyncIOMotorClient = None
     db = None
@@ -8,7 +10,7 @@ class MongoDB:
     async def connect_to_database(self):
         self.client = AsyncIOMotorClient(settings.MONGODB_URL)
         self.db = self.client[settings.DB_NAME]
-        print("Connected to MongoDB")
+        print(f"Connected to MongoDB on instance {hex(id(self))} (db: {hex(id(self.db))})")
         
         # Create Indices
         try:
@@ -35,3 +37,5 @@ class MongoDB:
         print("Closed MongoDB connection")
 
 db = MongoDB()
+print(f"[{__name__}] Instantiated db at {hex(id(db))} (imported by {inspect.stack()[1].filename if len(inspect.stack()) > 1 else 'unknown'})")
+

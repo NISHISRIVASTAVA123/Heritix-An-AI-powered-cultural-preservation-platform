@@ -1,6 +1,9 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 import time
-import os
 
 def test_architecture_flow():
     base_url = "http://127.0.0.1:8000"

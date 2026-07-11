@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { MandalaIcon, LotusIcon } from '@/components/Icons';
 
 const GROQ_API_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY || "";
 
@@ -364,31 +365,35 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
     };
 
     return (
-        <div className="flex w-full h-[calc(100vh-6rem)] relative overflow-hidden">
+        <div className="flex w-full h-[calc(100vh-6rem)] relative overflow-hidden bg-indian-prussian bg-indian-pattern">
+            {/* Ambient watermarks */}
+            <MandalaIcon className="absolute left-[-150px] top-[15%] w-[450px] h-[450px] text-indian-gold/15 animate-[spin_220s_linear_infinite] pointer-events-none z-0" />
+            <MandalaIcon className="absolute right-[-150px] top-[55%] w-[450px] h-[450px] text-indian-gold/15 animate-[spin_160s_linear_infinite] pointer-events-none z-0" />
+
             {/* Main Content Area */}
-            <div className="w-[65%] relative flex flex-col p-6 box-border bg-transparent" ref={containerRef}>
+            <div className="w-[65%] relative flex flex-col p-6 box-border bg-transparent z-10" ref={containerRef}>
                 <div className="relative mb-6 z-50">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">search</span>
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-indian-gold pointer-events-none">search</span>
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={handleSearchInput}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-outline-variant/30 bg-surface text-on-surface shadow-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-indian-gold/25 bg-indian-dark/50 backdrop-blur-md text-indian-cream shadow-sm focus:border-indian-gold focus:ring-1 focus:ring-indian-gold outline-none transition-all"
                         placeholder="Search for a city or state..." 
                     />
                     {searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-outline-variant/30 rounded-xl max-h-60 overflow-y-auto shadow-lg z-50">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-indian-dark/95 backdrop-blur-md border border-indian-gold/25 rounded-xl max-h-60 overflow-y-auto shadow-lg z-50">
                             {searchResults.map((c, i) => (
-                                <div key={i} className="p-3 border-b border-outline-variant/20 hover:bg-surface-variant cursor-pointer" onClick={() => selectSearchItem(c.city, c.state, c.lat, c.lon)}>
-                                    <div className="font-semibold text-on-surface">{c.city}</div>
-                                    <div className="text-sm text-on-surface-variant">{c.state}</div>
+                                <div key={i} className="p-3 border-b border-indian-gold/10 hover:bg-indian-gold/10 cursor-pointer" onClick={() => selectSearchItem(c.city, c.state, c.lat, c.lon)}>
+                                    <div className="font-semibold text-indian-cream">{c.city}</div>
+                                    <div className="text-sm text-indian-cream/70">{c.state}</div>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
 
-                <div className="flex-1 relative bg-surface border border-outline-variant/30 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm">
+                <div className="flex-1 relative bg-indian-dark/30 border border-indian-gold/20 rounded-2xl overflow-hidden flex items-center justify-center shadow-prussian-glow backdrop-blur-md">
                     <svg ref={svgRef} id="india-map" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet" className="w-full h-full cursor-crosshair" onClick={handleSvgClick} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
                         <g id="states-layer">
                             {paths.map((p, i) => (
@@ -396,7 +401,7 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
                                     key={i} 
                                     d={p.d} 
                                     data-name={p.name} 
-                                    className="fill-surface-variant stroke-outline-variant hover:fill-primary-container hover:stroke-primary transition-all duration-200 stroke-[1] hover:stroke-2"
+                                    className="fill-indian-dark/50 stroke-indian-gold/30 hover:fill-indian-gold/20 hover:stroke-indian-gold transition-all duration-200 stroke-[1] hover:stroke-2 cursor-pointer"
                                 />
                             ))}
                         </g>
@@ -413,13 +418,13 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
                     </svg>
 
                     {hoverInfo && (
-                        <div className="absolute bg-surface text-on-surface px-3 py-1.5 border border-outline-variant/30 rounded-lg shadow-md text-sm font-semibold pointer-events-none z-40 whitespace-nowrap transform -translate-x-1/2" style={{ left: hoverInfo.x, top: hoverInfo.y }}>
+                        <div className="absolute bg-indian-dark backdrop-blur-md text-indian-cream px-4 py-2 border border-indian-gold/40 rounded-lg shadow-md text-sm font-semibold pointer-events-none z-40 whitespace-nowrap transform -translate-x-1/2" style={{ left: hoverInfo.x, top: hoverInfo.y }}>
                             {hoverInfo.name}
                         </div>
                     )}
                     
                     {liveCoords && (
-                        <div className="absolute bottom-6 left-6 bg-surface text-on-surface-variant px-3 py-2 border border-outline-variant/30 rounded-lg shadow-sm font-mono text-sm z-40">
+                        <div className="absolute bottom-6 left-6 bg-indian-dark/50 backdrop-blur-sm text-indian-cream/80 px-3 py-2 border border-indian-gold/25 rounded-lg shadow-sm font-mono text-sm z-40">
                             {liveCoords.lat.toFixed(4)}°N / {liveCoords.lon.toFixed(4)}°E
                         </div>
                     )}
@@ -427,161 +432,162 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
             </div>
 
             {/* Sidebar */}
-            <div className="w-[35%] bg-surface border-l border-outline-variant/30 flex flex-col h-full z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
-                <div className="p-6 border-b border-outline-variant/20">
-                    <h2 className="text-2xl font-bold text-on-surface font-headline mb-2">{selectedRegion.region ? selectedRegion.region : "Explore Locations"}</h2>
-                    <div className="inline-block font-mono text-xs bg-surface-variant text-on-surface-variant px-2.5 py-1 rounded-md border border-outline-variant/30">
+            <div className="w-[35%] bg-indian-dark/45 backdrop-blur-md border-l border-indian-gold/20 flex flex-col h-full z-10 shadow-prussian-glow">
+                <div className="p-6 border-b border-indian-gold/15">
+                    <h2 className="text-2xl font-bold text-indian-cream font-headline mb-2">{selectedRegion.region ? selectedRegion.region : "Explore Locations"}</h2>
+                    <div className="inline-block font-mono text-xs bg-indian-gold/10 text-indian-gold px-2.5 py-1 rounded-md border border-indian-gold/25">
                         {selectedCoords ? `${selectedCoords.lat.toFixed(4)}°N / ${selectedCoords.lon.toFixed(4)}°E` : "Click the map to select"}
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
                     {exploreState === 'empty' && (
-                        <div className="flex flex-col items-center justify-center h-full text-on-surface-variant text-center opacity-80">
-                            <span className="material-symbols-outlined text-5xl mb-4 text-outline">language</span>
-                            <h2 className="text-lg font-semibold text-on-surface mb-2">Discover India</h2>
+                        <div className="flex flex-col items-center justify-center h-full text-indian-cream/70 text-center relative">
+                            <MandalaIcon className="absolute w-64 h-64 text-indian-gold/12 animate-[spin_100s_linear_infinite] pointer-events-none" />
+                            <span className="material-symbols-outlined text-5xl mb-4 text-indian-gold relative z-10">language</span>
+                            <h2 className="text-lg font-semibold text-indian-cream mb-2 relative z-10">Discover India</h2>
                             <p className="text-sm max-w-[250px]">Click anywhere on the map or search for a city to uncover its cultural heritage.</p>
                         </div>
                     )}
 
                     {exploreState === 'loading' && (
                         <>
-                            <div className="border border-outline-variant/20 rounded-xl p-4 bg-surface-container-lowest shadow-sm">
-                                <div className="h-6 bg-surface-variant rounded-md w-1/3 mb-4 animate-pulse"></div>
-                                <div className="h-4 bg-surface-variant rounded-md w-full mb-2 animate-pulse"></div>
-                                <div className="h-4 bg-surface-variant rounded-md w-full mb-2 animate-pulse"></div>
-                                <div className="h-4 bg-surface-variant rounded-md w-2/3 animate-pulse"></div>
+                            <div className="border border-indian-gold/15 rounded-xl p-4 bg-indian-dark/30 backdrop-blur-sm shadow-sm">
+                                <div className="h-6 bg-indian-gold/20 rounded-md w-1/3 mb-4 animate-pulse"></div>
+                                <div className="h-4 bg-indian-gold/20 rounded-md w-full mb-2 animate-pulse"></div>
+                                <div className="h-4 bg-indian-gold/20 rounded-md w-full mb-2 animate-pulse"></div>
+                                <div className="h-4 bg-indian-gold/20 rounded-md w-2/3 animate-pulse"></div>
                             </div>
-                            <div className="border border-outline-variant/20 rounded-xl p-4 bg-surface-container-lowest shadow-sm">
-                                <div className="h-6 bg-surface-variant rounded-md w-1/2 mb-4 animate-pulse"></div>
-                                <div className="h-4 bg-surface-variant rounded-md w-full mb-2 animate-pulse"></div>
-                                <div className="h-4 bg-surface-variant rounded-md w-4/5 animate-pulse"></div>
+                            <div className="border border-indian-gold/15 rounded-xl p-4 bg-indian-dark/30 backdrop-blur-sm shadow-sm">
+                                <div className="h-6 bg-indian-gold/20 rounded-md w-1/2 mb-4 animate-pulse"></div>
+                                <div className="h-4 bg-indian-gold/20 rounded-md w-full mb-2 animate-pulse"></div>
+                                <div className="h-4 bg-indian-gold/20 rounded-md w-4/5 animate-pulse"></div>
                             </div>
-                            <div className="border border-outline-variant/20 rounded-xl p-4 bg-surface-container-lowest shadow-sm">
-                                <div className="h-6 bg-surface-variant rounded-md w-2/5 mb-4 animate-pulse"></div>
+                            <div className="border border-indian-gold/15 rounded-xl p-4 bg-indian-dark/30 backdrop-blur-sm shadow-sm">
+                                <div className="h-6 bg-indian-gold/20 rounded-md w-2/5 mb-4 animate-pulse"></div>
                                 <div className="flex gap-2">
-                                    <div className="h-7 w-20 bg-surface-variant rounded-full animate-pulse"></div>
-                                    <div className="h-7 w-24 bg-surface-variant rounded-full animate-pulse"></div>
+                                    <div className="h-7 w-20 bg-indian-gold/20 rounded-full animate-pulse"></div>
+                                    <div className="h-7 w-24 bg-indian-gold/20 rounded-full animate-pulse"></div>
                                 </div>
                             </div>
                         </>
                     )}
 
                     {exploreState === 'error' && (
-                        <div className="flex flex-col items-center justify-center p-6 bg-error-container text-on-error-container rounded-xl border border-error/20">
-                            <span className="material-symbols-outlined text-4xl mb-2 text-error">error</span>
+                        <div className="flex flex-col items-center justify-center p-6 bg-red-950/40 text-red-200 rounded-xl border border-red-800/40">
+                            <span className="material-symbols-outlined text-4xl mb-2 text-red-400">error</span>
                             <h2 className="text-lg font-bold mb-1">Retrieval Failed</h2>
                             <p className="text-sm text-center mb-4">There was an error generating data via Groq AI. Check your API key or network connection.</p>
                             {selectedCoords && (
-                                <button onClick={() => fetchGroqData(selectedRegion.region, selectedRegion.state, selectedCoords.lat, selectedCoords.lon)} className="bg-error text-on-error px-4 py-2 rounded-lg font-bold text-sm hover:brightness-110 active:scale-95 transition-all">Retry Fetch</button>
+                                <button onClick={() => fetchGroqData(selectedRegion.region, selectedRegion.state, selectedCoords.lat, selectedCoords.lon)} className="bg-indian-gold text-indian-dark px-4 py-2 rounded-lg font-bold text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer">Retry Fetch</button>
                             )}
                         </div>
                     )}
 
                     {exploreState === 'data' && data && (
                         <>
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Region Overview</h3>
-                                <p className="text-on-surface text-sm leading-relaxed">{data.overview}</p>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-2">Region Overview</h3>
+                                <p className="text-indian-cream text-sm leading-relaxed">{data.overview}</p>
                             </div>
                             
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">History & Heritage</h3>
-                                <p className="text-on-surface text-sm leading-relaxed">{data.history}</p>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-2">History & Heritage</h3>
+                                <p className="text-indian-cream text-sm leading-relaxed">{data.history}</p>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Festivals</h3>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-3">Festivals</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.festivals?.map((item, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200 border border-orange-200 dark:border-orange-800/50">{item}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-indian-gold/10 text-indian-gold border border-indian-gold/20">{item}</span>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Cuisine</h3>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-3">Cuisine</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.cuisine?.map((item, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800/50">{item}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-indian-emerald/20 text-indian-cream border border-indian-emerald/30">{item}</span>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Art Forms</h3>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-3">Art Forms</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.artForms?.map((item, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200 border border-violet-200 dark:border-violet-800/50">{item}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-indian-terracotta/20 text-indian-cream border border-indian-terracotta/30">{item}</span>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Languages</h3>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-3">Languages</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.languages?.map((item, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 border border-blue-200 dark:border-blue-800/50">{item}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-indian-prussian/35 text-indian-cream border border-indian-prussian/40">{item}</span>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Architecture</h3>
-                                <p className="text-on-surface text-sm leading-relaxed">{data.architecture}</p>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-2">Architecture</h3>
+                                <p className="text-indian-cream text-sm leading-relaxed">{data.architecture}</p>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Must Visit</h3>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-3">Must Visit</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {data.mustVisit?.map((item, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200 border border-rose-200 dark:border-rose-800/50">{item}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-indian-wine/30 text-indian-cream border border-indian-wine/40">{item}</span>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="border border-outline-variant/20 rounded-xl p-5 bg-surface-container-lowest shadow-sm">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 flex items-center gap-2">Fun Fact <span className="text-lg">💡</span></h3>
-                                <p className="text-on-surface text-sm leading-relaxed">{data.funFact}</p>
+                            <div className="border border-indian-gold/15 rounded-xl p-5 bg-indian-dark/30 backdrop-blur-sm shadow-prussian-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-indian-gold mb-2 flex items-center gap-2">Fun Fact <span className="text-lg">💡</span></h3>
+                                <p className="text-indian-cream text-sm leading-relaxed">{data.funFact}</p>
                             </div>
                         </>
                     )}
 
                     {/* Community Records Section */}
                     {exploreState === 'data' && (
-                        <div className="mt-4 border-t border-outline-variant/30 pt-6">
+                        <div className="mt-4 border-t border-indian-gold/20 pt-6">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-bold text-on-surface font-headline flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">record_voice_over</span>
+                                <h2 className="text-xl font-bold text-indian-cream font-headline flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-indian-gold">record_voice_over</span>
                                     Community Oral Histories
                                 </h2>
                                 {activeCityFilter && (
-                                    <span className="text-[10px] uppercase font-bold text-primary bg-primary-container px-2 py-1 rounded-full whitespace-nowrap">
+                                    <span className="text-[10px] uppercase font-bold text-indian-cream bg-indian-gold/20 border border-indian-gold/30 px-2 py-1 rounded-full whitespace-nowrap">
                                         City: {activeCityFilter}
                                     </span>
                                 )}
                             </div>
                             
                             {communityRecordsStatus === 'loading' && (
-                                <div className="text-sm text-on-surface-variant flex items-center gap-2">
-                                    <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                                <div className="text-sm text-indian-cream/80 flex items-center gap-2">
+                                    <span className="material-symbols-outlined animate-spin text-indian-gold">progress_activity</span>
                                     Loading community contributions...
                                 </div>
                             )}
 
                             {communityRecordsStatus === 'error' && (
-                                <div className="border border-outline-variant/20 border-dashed rounded-xl p-6 text-center bg-surface-container-lowest">
-                                    <span className="material-symbols-outlined text-outline-variant text-4xl mb-2">search_off</span>
-                                    <h3 className="font-semibold text-on-surface text-sm mb-1">Data Not Found</h3>
-                                    <p className="text-xs text-on-surface-variant">No community records available for this region.</p>
+                                <div className="border border-indian-gold/20 border-dashed rounded-xl p-6 text-center bg-indian-dark/30">
+                                    <span className="material-symbols-outlined text-indian-gold/40 text-4xl mb-2">search_off</span>
+                                    <h3 className="font-semibold text-indian-cream text-sm mb-1">Data Not Found</h3>
+                                    <p className="text-xs text-indian-cream/70">No community records available for this region.</p>
                                 </div>
                             )}
 
                             {communityRecordsStatus === 'data' && communityRecords.length === 0 && (
-                                <div className="border border-outline-variant/20 border-dashed rounded-xl p-6 text-center bg-surface-container-lowest">
-                                    <span className="material-symbols-outlined text-outline-variant text-4xl mb-2">mic_off</span>
-                                    <h3 className="font-semibold text-on-surface text-sm mb-1">No community histories yet</h3>
-                                    <p className="text-xs text-on-surface-variant">Be the first to add an oral history to this state!</p>
+                                <div className="border border-indian-gold/20 border-dashed rounded-xl p-6 text-center bg-indian-dark/30">
+                                    <span className="material-symbols-outlined text-indian-gold/40 text-4xl mb-2">mic_off</span>
+                                    <h3 className="font-semibold text-indian-cream text-sm mb-1">No community histories yet</h3>
+                                    <p className="text-xs text-indian-cream/70">Be the first to add an oral history to this state!</p>
                                 </div>
                             )}
 
@@ -589,13 +595,13 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
                                 <div className="flex flex-col gap-3">
                                     {communityRecords.map((rec, idx) => (
                                         <Link href={`/archive/${rec._id}`} key={idx}>
-                                            <div className="group border border-outline-variant/30 rounded-xl p-4 bg-surface hover:bg-surface-container-low transition-all cursor-pointer shadow-sm hover:shadow-md hover:border-primary/40 relative overflow-hidden">
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary transition-colors"></div>
+                                            <div className="group border border-indian-gold/15 rounded-xl p-4 bg-indian-dark/30 hover:bg-indian-dark/50 transition-all cursor-pointer shadow-prussian-glow hover:border-indian-gold/35 relative overflow-hidden">
+                                                <div className="absolute top-0 left-0 w-1 h-full bg-indian-gold/20 group-hover:bg-indian-gold transition-colors"></div>
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-bold text-on-surface text-sm group-hover:text-primary transition-colors pr-4">{rec.title || "Untitled Record"}</h4>
-                                                    <span className="text-[10px] uppercase font-bold text-primary bg-primary-container px-2 py-0.5 rounded-sm whitespace-nowrap">{rec.category || "General"}</span>
+                                                    <h4 className="font-bold text-indian-cream text-sm group-hover:text-indian-gold transition-colors pr-4">{rec.title || "Untitled Record"}</h4>
+                                                    <span className="text-[10px] uppercase font-bold text-indian-gold bg-indian-gold/10 border border-indian-gold/20 px-2 py-0.5 rounded-sm whitespace-nowrap">{rec.category || "General"}</span>
                                                 </div>
-                                                <div className="flex items-center gap-4 text-xs text-on-surface-variant">
+                                                <div className="flex items-center gap-4 text-xs text-indian-cream/70">
                                                     <span className="flex items-center gap-1">
                                                         <span className="material-symbols-outlined text-[14px]">person</span>
                                                         {rec.contributor || "Anonymous"}
@@ -614,19 +620,19 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
                     )}
                 </div>
 
-                <div className="p-4 border-t border-outline-variant/20 bg-surface">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Recently Explored</h3>
+                <div className="p-4 border-t border-indian-gold/15 bg-indian-dark/50 backdrop-blur-md">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-indian-cream/70 mb-3">Recently Explored</h3>
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         {history.length > 0 ? history.map((item, idx) => (
                             <button 
                                 key={idx}
                                 onClick={() => handleLocationSelect(item.region, item.state, item.lat, item.lon)}
-                                className="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant/30 text-xs font-semibold text-on-surface hover:bg-primary-container hover:text-on-primary-container hover:border-primary/50 transition-all"
+                                className="whitespace-nowrap px-4 py-1.5 rounded-full border border-indian-gold/20 text-xs font-semibold text-indian-cream bg-indian-dark/30 hover:bg-indian-gold/20 hover:text-indian-cream hover:border-indian-gold/50 transition-all cursor-pointer"
                             >
                                 {item.region === 'Clicked location' ? `${item.lat.toFixed(2)}, ${item.lon.toFixed(2)}` : item.region}
                             </button>
                         )) : (
-                            <span className="text-xs text-on-surface-variant italic">No locations explored yet</span>
+                            <span className="text-xs text-indian-cream/70 italic">No locations explored yet</span>
                         )}
                     </div>
                 </div>

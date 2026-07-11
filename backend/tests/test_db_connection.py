@@ -1,7 +1,10 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import asyncio
 from db.mongo import db
 from config import settings
-import sys
 
 async def test_connection():
     if sys.platform == 'win32':

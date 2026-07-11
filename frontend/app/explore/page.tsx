@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ExplorePage() {
     return (
-        <div className="pt-24 h-screen w-full box-border">
+        <div className="pt-24 h-screen w-full box-border bg-indian-prussian bg-indian-pattern relative overflow-hidden">
             <GroqCulturalMap />
         </div>
     );

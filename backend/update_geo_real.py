@@ -33,7 +33,7 @@ async def reprocess_geo():
             # Run extraction agent again to get real insights
             extraction_data = await agent_manager.process_extraction(transcript)
             
-            region_name = extraction_data.get("region_name") if isinstance(extraction_data, dict) else None
+            region_name = extraction_data.get("region") if isinstance(extraction_data, dict) else None
             latitude = extraction_data.get("latitude") if isinstance(extraction_data, dict) else None
             longitude = extraction_data.get("longitude") if isinstance(extraction_data, dict) else None
             

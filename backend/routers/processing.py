@@ -197,12 +197,15 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
             region = extraction_data.get("region")
             if region and region.lower() != "unknown":
                 update_fields["region"] = region
+                update_fields["region_name"] = region  # Align with mapping endpoints query/projection
                 region_val = region
                 
             lat = extraction_data.get("latitude")
             lng = extraction_data.get("longitude")
             if lat is not None and lng is not None:
                 try:
+                    update_fields["latitude"] = float(lat)    # Align with mapping endpoints query/projection
+                    update_fields["longitude"] = float(lng)   # Align with mapping endpoints query/projection
                     update_fields["location"] = {
                         "type": "Point",
                         "coordinates": [float(lng), float(lat)]

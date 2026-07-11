@@ -7,6 +7,7 @@ import { apiUrl } from '@/lib/api';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
+import { MandalaIcon, LotusIcon } from '@/components/Icons';
 
 interface ProcessingLogEntry {
     stage: string;
@@ -269,286 +270,292 @@ export default function CapturePage() {
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center max-w-5xl mx-auto text-center w-full">
-            {['idle', 'recording', 'review'].includes(status) && (
-                <header className="mb-16 space-y-4 max-w-2xl">
-                    <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-primary">Capture the Oral History</h1>
-                    <p className="text-on-surface-variant text-lg leading-relaxed">Your voice is a bridge across generations. Speak freely, and let the ledger record your truth.</p>
-                </header>
-            )}
+        <div className="w-full min-h-screen bg-indian-emerald bg-indian-pattern text-indian-cream pt-32 pb-20 px-6 flex flex-col items-center justify-center relative overflow-hidden">
+            {/* Ambient Mandalas */}
+            <MandalaIcon className="absolute left-[-150px] top-[15%] w-[450px] h-[450px] text-indian-cream/15 animate-[spin_200s_linear_infinite] pointer-events-none z-0" />
+            <MandalaIcon className="absolute right-[-150px] top-[50%] w-[450px] h-[450px] text-indian-cream/15 animate-[spin_160s_linear_infinite] pointer-events-none z-0" />
+            
+            <div className="max-w-5xl mx-auto text-center w-full flex flex-col items-center justify-center relative z-10">
+                {['idle', 'recording', 'review'].includes(status) && (
+                    <header className="mb-16 space-y-4 max-w-2xl">
+                        <h1 className="font-serif text-4xl md:text-5xl font-extrabold tracking-tight text-gold-gradient">Capture the Oral History</h1>
+                        <p className="text-indian-bronze text-lg leading-relaxed">Your voice is a bridge across generations. Speak freely, and let the ledger record your truth.</p>
+                    </header>
+                )}
 
-            {['uploading', 'processing'].includes(status) && (
-                <div className="space-y-6 mb-16">
-                    <div className="inline-flex items-center justify-center p-4 bg-surface-container-low rounded-full mb-4">
-                        <span className="material-symbols-outlined text-primary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>history_edu</span>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-headline font-extrabold text-on-surface tracking-tight max-w-2xl mx-auto leading-tight">
-                        We are carefully analyzing your heritage.
-                    </h1>
-                    <p className="text-lg text-on-surface-variant font-body max-w-lg mx-auto">
-                        Taking a moment to digitize the soul of your story with the dignity it deserves.
-                    </p>
-                </div>
-            )}
-
-            {status === 'failed' && (
-                <section className="w-full max-w-2xl animate-in slide-in-from-bottom duration-500">
-                    <div className="bg-error-container text-error rounded-2xl border border-error/20 p-8 shadow-[0_20px_40px_rgba(27,28,25,0.06)]">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-error/10 mb-6">
-                            <span className="material-symbols-outlined text-4xl">error</span>
+                {['uploading', 'processing'].includes(status) && (
+                    <div className="space-y-6 mb-16">
+                        <div className="inline-flex items-center justify-center p-4 bg-indian-dark/30 border border-indian-gold/20 rounded-full mb-4 shadow-emerald-glow">
+                            <span className="material-symbols-outlined text-indian-gold text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>history_edu</span>
                         </div>
-                        <h2 className="text-3xl font-headline font-extrabold mb-4">Recording could not be processed</h2>
-                        <p className="text-base leading-relaxed mb-8">
-                            {error || "It looks like the audio wasn't recorded properly or was empty. Please try recording again."}
+                        <h1 className="text-4xl md:text-5xl font-serif font-extrabold text-gold-gradient tracking-tight max-w-2xl mx-auto leading-tight">
+                            We are carefully analyzing your heritage.
+                        </h1>
+                        <p className="text-lg text-indian-bronze font-body max-w-lg mx-auto">
+                            Taking a moment to digitize the soul of your story with the dignity it deserves.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button
-                                onClick={resetCaptureFlow}
-                                className="px-8 py-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
-                            >
-                                Try Recording Again
-                            </button>
-                            <button
-                                onClick={() => setStatus('review')}
-                                className="px-8 py-4 rounded-full bg-surface-container-high text-on-surface font-headline font-bold transition-all duration-300 hover:bg-surface-variant"
-                            >
-                                Review Last Recording
-                            </button>
-                        </div>
                     </div>
-                </section>
-            )}
+                )}
 
-            {error && status !== 'failed' && (
-                <div className="bg-error-container text-error p-4 rounded-xl mb-8 border border-error/20 max-w-2xl w-full">
-                    {error}
-                </div>
-            )}
+                {status === 'failed' && (
+                    <section className="w-full max-w-2xl animate-in slide-in-from-bottom duration-500">
+                        <div className="bg-red-950/20 text-red-300 rounded-2xl border border-red-500/20 p-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)]">
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 mb-6">
+                                <span className="material-symbols-outlined text-4xl text-red-400">error</span>
+                            </div>
+                            <h2 className="text-3xl font-serif font-extrabold mb-4">Recording could not be processed</h2>
+                            <p className="text-base leading-relaxed mb-8">
+                                {error || "It looks like the audio wasn't recorded properly or was empty. Please try recording again."}
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button
+                                    onClick={resetCaptureFlow}
+                                    className="px-8 py-4 rounded-full bg-gradient-to-br from-indian-emerald to-indian-emerald/80 text-indian-cream border border-indian-gold/30 font-headline font-bold shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                                >
+                                    Try Recording Again
+                                </button>
+                                <button
+                                    onClick={() => setStatus('review')}
+                                    className="px-8 py-4 rounded-full bg-indian-dark/40 border border-indian-gold/20 text-indian-cream font-headline font-bold transition-all duration-300 hover:bg-indian-dark/60"
+                                >
+                                    Review Last Recording
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
-            {['idle', 'recording'].includes(status) && (
-                <section className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
-                    <div className="relative mb-8">
-                        <RecordButton
-                            isRecording={status === 'recording'}
-                            onClick={status === 'recording' ? stopRecording : startRecording}
-                        />
-                        {/* Recording metrics ring */}
-                        {status === 'recording' && (
-                            <div className="absolute -inset-8 -z-10 rounded-full border border-error/30 animate-ping"></div>
-                        )}
+                {error && status !== 'failed' && (
+                    <div className="bg-red-950/20 text-red-300 p-4 rounded-xl mb-8 border border-red-500/20 max-w-2xl w-full">
+                        {error}
                     </div>
-                    
-                    {status === 'recording' ? (
-                        <div className="mb-10 text-center animate-pulse">
-                            <span className="font-headline font-extrabold text-4xl text-error drop-shadow-md">
-                                {formatDuration(recordingTime)}
-                            </span>
-                            <p className="text-sm font-bold text-error/80 uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-error"></span> Recording Active
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="mb-10 text-center">
-                            <p className="font-headline font-semibold text-xl text-secondary italic">
-                                "You may speak in any language or dialect."
-                            </p>
-                            <p className="text-sm text-on-surface-variant/80 mt-2">
-                                Supported formats: WebM, OGG (auto-selected)
-                            </p>
-                        </div>
-                    )}
+                )}
 
-                    <div className="grid grid-cols-2 gap-6 w-full max-w-md px-4">
-                        <button onClick={startRecording} disabled={status === 'recording'} className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full font-headline font-bold text-lg shadow-lg transition-all duration-300 ${status === 'recording' ? 'bg-surface-dim text-on-surface-variant cursor-not-allowed' : 'bg-gradient-to-br from-primary to-primary-container text-on-primary hover:shadow-xl hover:scale-105 active:scale-95'}`}>
-                            <span className="material-symbols-outlined">play_arrow</span>
-                            Start
-                        </button>
-                        <button onClick={stopRecording} disabled={status !== 'recording'} className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full font-headline font-bold text-lg shadow-lg transition-all duration-300 ${status !== 'recording' ? 'bg-surface-dim text-on-surface-variant cursor-not-allowed' : 'bg-secondary text-on-secondary hover:shadow-xl hover:scale-105 active:scale-95'}`}>
-                            <span className="material-symbols-outlined">stop</span>
-                            Stop
-                        </button>
-                    </div>
-                </section>
-            )}
-
-            {status === 'review' && (
-                <section className="w-full flex flex-col items-center animate-in slide-in-from-bottom duration-500 max-w-2xl">
-                    <audio ref={audioPlayerRef} className="hidden" controls />
-
-                    <div className="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] border border-surface-container text-left w-full mb-8">
-                        <h3 className="text-2xl font-bold font-headline text-primary mb-2">Review & Submit</h3>
-                        <p className="text-on-surface-variant font-medium mb-8 flex items-center gap-4">
-                            <span className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-md border border-surface-container-highest shadow-sm text-sm">
-                                <span className="material-symbols-outlined text-sm">timer</span>
-                                {formatDuration(recordingTime)}
-                            </span>
-                            <span className="flex items-center gap-1.5 bg-surface px-3 py-1.5 rounded-md border border-surface-container-highest shadow-sm text-sm">
-                                <span className="material-symbols-outlined text-sm">folder_open</span>
-                                {audioBlob ? formatFileSize(audioBlob.size) : '0 B'}
-                            </span>
-                        </p>
-
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold text-on-surface-variant mb-2">Contributor Name</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-3 bg-surface-container-highest rounded-md outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
-                                value={contributor}
-                                onChange={(e) => setContributor(e.target.value)}
+                {['idle', 'recording'].includes(status) && (
+                    <section className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
+                        <div className="relative mb-8">
+                            <RecordButton
+                                isRecording={status === 'recording'}
+                                onClick={status === 'recording' ? stopRecording : startRecording}
                             />
+                            {/* Recording metrics ring */}
+                            {status === 'recording' && (
+                                <div className="absolute -inset-8 -z-10 rounded-full border border-red-500/30 animate-ping"></div>
+                            )}
                         </div>
-
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold text-on-surface-variant mb-2">State (Associated Region)</label>
-                            <input
-                                type="text"
-                                list="states-list"
-                                placeholder="Global / Type or select a state..."
-                                className="w-full px-4 py-3 bg-surface-container-highest rounded-md outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
-                                value={state}
-                                onChange={(e) => setState(e.target.value)}
-                            />
-                            <datalist id="states-list">
-                                <option value="Andhra Pradesh" />
-                                <option value="Arunachal Pradesh" />
-                                <option value="Assam" />
-                                <option value="Bihar" />
-                                <option value="Chhattisgarh" />
-                                <option value="Goa" />
-                                <option value="Gujarat" />
-                                <option value="Haryana" />
-                                <option value="Himachal Pradesh" />
-                                <option value="Jharkhand" />
-                                <option value="Karnataka" />
-                                <option value="Kerala" />
-                                <option value="Madhya Pradesh" />
-                                <option value="Maharashtra" />
-                                <option value="Manipur" />
-                                <option value="Meghalaya" />
-                                <option value="Mizoram" />
-                                <option value="Nagaland" />
-                                <option value="Odisha" />
-                                <option value="Punjab" />
-                                <option value="Rajasthan" />
-                                <option value="Sikkim" />
-                                <option value="Tamil Nadu" />
-                                <option value="Telangana" />
-                                <option value="Tripura" />
-                                <option value="Uttar Pradesh" />
-                                <option value="Uttarakhand" />
-                                <option value="West Bengal" />
-                                <option value="Andaman and Nicobar Islands" />
-                                <option value="Chandigarh" />
-                                <option value="Delhi" />
-                                <option value="Jammu and Kashmir" />
-                                <option value="Ladakh" />
-                            </datalist>
-                        </div>
-
-                        <div className="mb-6">
-                            <label className="block text-sm font-bold text-on-surface-variant mb-2">City (Associated Region)</label>
-                            <input
-                                type="text"
-                                list="cities-list"
-                                placeholder="Type or select a city..."
-                                className="w-full px-4 py-3 bg-surface-container-highest rounded-md outline-none focus:ring-2 focus:ring-primary/50 text-on-surface"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                            />
-                            <datalist id="cities-list">
-                                <option value="Mumbai" />
-                                <option value="Delhi" />
-                                <option value="Bengaluru" />
-                                <option value="Hyderabad" />
-                                <option value="Ahmedabad" />
-                                <option value="Chennai" />
-                                <option value="Kolkata" />
-                                <option value="Surat" />
-                                <option value="Pune" />
-                                <option value="Jaipur" />
-                                <option value="Lucknow" />
-                                <option value="Kanpur" />
-                                <option value="Nagpur" />
-                                <option value="Indore" />
-                                <option value="Thane" />
-                                <option value="Bhopal" />
-                                <option value="Visakhapatnam" />
-                                <option value="Patna" />
-                                <option value="Vadodara" />
-                                <option value="Ludhiana" />
-                                <option value="Agra" />
-                                <option value="Nashik" />
-                                <option value="Ranchi" />
-                                <option value="Faridabad" />
-                                <option value="Meerut" />
-                                <option value="Rajkot" />
-                                <option value="Varanasi" />
-                                <option value="Srinagar" />
-                                <option value="Aurangabad" />
-                                <option value="Dhanbad" />
-                                <option value="Amritsar" />
-                                <option value="Allahabad" />
-                                <option value="Guwahati" />
-                                <option value="Chandigarh" />
-                                <option value="Thiruvananthapuram" />
-                                <option value="Bhubaneswar" />
-                            </datalist>
-                        </div>
-
-                        <div className="mb-8">
-                            <label className="flex items-start gap-4 p-4 bg-surface-container-low rounded-lg border border-outline-variant/20 cursor-pointer hover:bg-surface-container transition">
-                                <input
-                                    type="checkbox"
-                                    className="mt-1 w-5 h-5 text-primary rounded border-outline"
-                                    checked={consent}
-                                    onChange={(e) => setConsent(e.target.checked)}
-                                />
-                                <span className="text-sm text-on-surface-variant leading-snug">
-                                    I confirm that I have obtained necessary consent to share and preserve this cultural knowledge for educational purposes.
+                        
+                        {status === 'recording' ? (
+                            <div className="mb-10 text-center animate-pulse">
+                                <span className="font-headline font-extrabold text-4xl text-red-400 drop-shadow-md">
+                                    {formatDuration(recordingTime)}
                                 </span>
-                            </label>
+                                <p className="text-sm font-bold text-red-400 uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Recording Active
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="mb-10 text-center">
+                                <p className="font-serif italic font-semibold text-xl text-indian-gold">
+                                    "You may speak in any language or dialect."
+                                </p>
+                                <p className="text-sm text-indian-bronze/80 mt-2">
+                                    Supported formats: WebM, OGG (auto-selected)
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-6 w-full max-w-md px-4">
+                            <button onClick={startRecording} disabled={status === 'recording'} className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full font-headline font-bold text-lg shadow-lg transition-all duration-300 ${status === 'recording' ? 'bg-indian-dark/30 text-indian-bronze cursor-not-allowed border border-indian-gold/10' : 'bg-gradient-to-br from-indian-emerald to-indian-emerald/80 text-indian-cream border border-indian-gold/30 hover:shadow-xl hover:scale-105 active:scale-95'}`}>
+                                <span className="material-symbols-outlined text-indian-gold">play_arrow</span>
+                                Start
+                            </button>
+                            <button onClick={stopRecording} disabled={status !== 'recording'} className={`flex items-center justify-center gap-3 px-8 py-5 rounded-full font-headline font-bold text-lg shadow-lg transition-all duration-300 ${status !== 'recording' ? 'bg-indian-dark/30 text-indian-bronze cursor-not-allowed border border-indian-gold/10' : 'bg-indian-terracotta border border-indian-gold/30 text-indian-cream hover:shadow-xl hover:scale-105 active:scale-95'}`}>
+                                <span className="material-symbols-outlined">stop</span>
+                                Stop
+                            </button>
+                        </div>
+                    </section>
+                )}
+
+                {status === 'review' && (
+                    <section className="w-full flex flex-col items-center animate-in slide-in-from-bottom duration-500 max-w-2xl">
+                        <audio ref={audioPlayerRef} className="hidden" controls />
+
+                        <div className="bg-indian-dark/30 border border-indian-gold/20 backdrop-blur-md p-8 rounded-2xl shadow-emerald-glow text-left w-full mb-8">
+                            <h3 className="text-2xl font-bold font-serif text-gold-gradient mb-2">Review & Submit</h3>
+                            <p className="text-indian-bronze font-medium mb-8 flex items-center gap-4">
+                                <span className="flex items-center gap-1.5 bg-indian-dark/50 px-3 py-1.5 rounded-md border border-indian-gold/20 shadow-sm text-sm">
+                                    <span className="material-symbols-outlined text-sm text-indian-gold">timer</span>
+                                    {formatDuration(recordingTime)}
+                                </span>
+                                <span className="flex items-center gap-1.5 bg-indian-dark/50 px-3 py-1.5 rounded-md border border-indian-gold/20 shadow-sm text-sm">
+                                    <span className="material-symbols-outlined text-sm text-indian-gold">folder_open</span>
+                                    {audioBlob ? formatFileSize(audioBlob.size) : '0 B'}
+                                </span>
+                            </p>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-bold text-indian-gold mb-2">Contributor Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-3 bg-indian-dark/50 border border-indian-gold/20 rounded-md outline-none focus:ring-2 focus:ring-indian-gold/50 text-indian-cream"
+                                    value={contributor}
+                                    onChange={(e) => setContributor(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-bold text-indian-gold mb-2">State (Associated Region)</label>
+                                <input
+                                    type="text"
+                                    list="states-list"
+                                    placeholder="Global / Type or select a state..."
+                                    className="w-full px-4 py-3 bg-indian-dark/50 border border-indian-gold/20 rounded-md outline-none focus:ring-2 focus:ring-indian-gold/50 text-indian-cream placeholder:text-indian-bronze/50"
+                                    value={state}
+                                    onChange={(e) => setState(e.target.value)}
+                                />
+                                <datalist id="states-list">
+                                    <option value="Andhra Pradesh" />
+                                    <option value="Arunachal Pradesh" />
+                                    <option value="Assam" />
+                                    <option value="Bihar" />
+                                    <option value="Chhattisgarh" />
+                                    <option value="Goa" />
+                                    <option value="Gujarat" />
+                                    <option value="Haryana" />
+                                    <option value="Himachal Pradesh" />
+                                    <option value="Jharkhand" />
+                                    <option value="Karnataka" />
+                                    <option value="Kerala" />
+                                    <option value="Madhya Pradesh" />
+                                    <option value="Maharashtra" />
+                                    <option value="Manipur" />
+                                    <option value="Meghalaya" />
+                                    <option value="Mizoram" />
+                                    <option value="Nagaland" />
+                                    <option value="Odisha" />
+                                    <option value="Punjab" />
+                                    <option value="Rajasthan" />
+                                    <option value="Sikkim" />
+                                    <option value="Tamil Nadu" />
+                                    <option value="Telangana" />
+                                    <option value="Tripura" />
+                                    <option value="Uttar Pradesh" />
+                                    <option value="Uttarakhand" />
+                                    <option value="West Bengal" />
+                                    <option value="Andaman and Nicobar Islands" />
+                                    <option value="Chandigarh" />
+                                    <option value="Delhi" />
+                                    <option value="Jammu and Kashmir" />
+                                    <option value="Ladakh" />
+                                </datalist>
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-bold text-indian-gold mb-2">City (Associated Region)</label>
+                                <input
+                                    type="text"
+                                    list="cities-list"
+                                    placeholder="Type or select a city..."
+                                    className="w-full px-4 py-3 bg-indian-dark/50 border border-indian-gold/20 rounded-md outline-none focus:ring-2 focus:ring-indian-gold/50 text-indian-cream placeholder:text-indian-bronze/50"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                />
+                                <datalist id="cities-list">
+                                    <option value="Mumbai" />
+                                    <option value="Delhi" />
+                                    <option value="Bengaluru" />
+                                    <option value="Hyderabad" />
+                                    <option value="Ahmedabad" />
+                                    <option value="Chennai" />
+                                    <option value="Kolkata" />
+                                    <option value="Surat" />
+                                    <option value="Pune" />
+                                    <option value="Jaipur" />
+                                    <option value="Lucknow" />
+                                    <option value="Kanpur" />
+                                    <option value="Nagpur" />
+                                    <option value="Indore" />
+                                    <option value="Thane" />
+                                    <option value="Bhopal" />
+                                    <option value="Visakhapatnam" />
+                                    <option value="Patna" />
+                                    <option value="Vadodara" />
+                                    <option value="Ludhiana" />
+                                    <option value="Agra" />
+                                    <option value="Nashik" />
+                                    <option value="Ranchi" />
+                                    <option value="Faridabad" />
+                                    <option value="Meerut" />
+                                    <option value="Rajkot" />
+                                    <option value="Varanasi" />
+                                    <option value="Srinagar" />
+                                    <option value="Aurangabad" />
+                                    <option value="Dhanbad" />
+                                    <option value="Amritsar" />
+                                    <option value="Allahabad" />
+                                    <option value="Guwahati" />
+                                    <option value="Chandigarh" />
+                                    <option value="Thiruvananthapuram" />
+                                    <option value="Bhubaneswar" />
+                                </datalist>
+                            </div>
+
+                            <div className="mb-8">
+                                <label className="flex items-start gap-4 p-4 bg-indian-dark/40 backdrop-blur-md rounded-lg border border-indian-gold/20 cursor-pointer hover:bg-indian-dark/60 hover:border-indian-gold/40 shadow-emerald-glow transition">
+                                    <input
+                                        type="checkbox"
+                                        className="mt-1 w-5 h-5 text-indian-gold rounded border-indian-gold/30 accent-indian-gold focus:ring-indian-gold"
+                                        checked={consent}
+                                        onChange={(e) => setConsent(e.target.checked)}
+                                    />
+                                    <span className="text-sm text-indian-bronze leading-snug">
+                                        I confirm that I have obtained necessary consent to share and preserve this cultural knowledge for educational purposes.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+                            <button onClick={resetCaptureFlow} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-indian-dark/40 border border-indian-gold/20 text-indian-cream font-headline font-bold hover:bg-indian-dark/60 transition-all duration-300 active:scale-95">
+                                <span className="material-symbols-outlined text-indian-gold">replay</span> Retry
+                            </button>
+                            <button onClick={playRecording} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-transparent border border-indian-gold/40 text-indian-cream font-headline font-bold shadow-md hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
+                                <span className="material-symbols-outlined text-indian-gold">volume_up</span> Play
+                            </button>
+                            <button onClick={handleUpload} disabled={!consent} className={`flex items-center justify-center gap-2 px-6 py-4 rounded-full font-headline font-bold shadow-lg transition-all duration-300 ${consent ? 'bg-gold-gradient border border-indian-gold/30 text-indian-dark hover:scale-105 active:scale-95 cursor-pointer' : 'bg-indian-dark/20 border border-indian-gold/10 text-indian-bronze/50 cursor-not-allowed'}`}>
+                                <span className="material-symbols-outlined">upload</span> Upload
+                            </button>
+                        </div>
+                    </section>
+                )}
+
+                {['uploading', 'processing'].includes(status) && (
+                    <div className="w-full">
+                        <ProcessingSteps steps={steps.map(step => ({ ...step, status: mapStepStatus(step.status) }))} />
+                        <div className="pt-8">
+                            <button onClick={() => setStatus('review')} className="px-8 py-3 rounded-full border border-indian-gold/30 text-indian-cream font-label font-medium hover:bg-white/5 transition-all duration-300 active:scale-95">
+                                Cancel Processing
+                            </button>
                         </div>
                     </div>
+                )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
-                        <button onClick={resetCaptureFlow} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-surface-container-high text-on-surface font-headline font-bold hover:bg-surface-variant transition-all duration-300">
-                            <span className="material-symbols-outlined">replay</span> Retry
-                        </button>
-                        <button onClick={playRecording} className="flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-secondary-fixed text-on-secondary-fixed font-headline font-bold shadow-md hover:bg-secondary-container transition-all duration-300 hover:scale-105">
-                            <span className="material-symbols-outlined">volume_up</span> Play
-                        </button>
-                        <button onClick={handleUpload} disabled={!consent} className={`flex items-center justify-center gap-2 px-6 py-4 rounded-full font-headline font-bold shadow-lg transition-all duration-300 ${consent ? 'bg-gradient-to-br from-primary to-primary-container text-on-primary hover:scale-105 active:scale-95' : 'bg-surface-dim text-on-surface-variant cursor-not-allowed'}`}>
-                            <span className="material-symbols-outlined">upload</span> Upload
-                        </button>
-                    </div>
-                </section>
-            )}
-
-            {['uploading', 'processing'].includes(status) && (
-                <div className="w-full">
-                    <ProcessingSteps steps={steps.map(step => ({ ...step, status: mapStepStatus(step.status) }))} />
-                    <div className="pt-8">
-                        <button onClick={() => setStatus('review')} className="px-8 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label font-medium hover:bg-surface-container-high transition-all duration-300 active:scale-95">
-                            Cancel Processing
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {['idle', 'recording'].includes(status) && (
-                <section className="mt-24 grid md:grid-cols-2 gap-8 w-full max-w-4xl text-left">
-                    <div className="bg-surface-container-low p-10 rounded-lg space-y-4">
-                        <span className="material-symbols-outlined text-secondary text-4xl">history_edu</span>
-                        <h3 className="font-headline font-bold text-2xl text-primary">Preservation Ethics</h3>
-                        <p className="text-on-surface-variant leading-relaxed">Every recording is encrypted and stored with cultural sensitivity. You retain full ownership of your story while contributing to the living ledger.</p>
-                    </div>
-                    <div className="bg-surface-container-low p-10 rounded-lg space-y-4">
-                        <span className="material-symbols-outlined text-secondary text-4xl">language</span>
-                        <h3 className="font-headline font-bold text-2xl text-primary">Dialect Mapping</h3>
-                        <p className="text-on-surface-variant leading-relaxed">Our AI recognizes nuanced linguistic patterns, ensuring your unique phrasing and regional expressions are preserved with absolute accuracy.</p>
-                    </div>
-                </section>
-            )}
+                {['idle', 'recording'].includes(status) && (
+                    <section className="mt-24 grid md:grid-cols-2 gap-8 w-full max-w-4xl text-left">
+                        <div className="bg-indian-dark/30 border border-indian-gold/15 backdrop-blur-md p-10 rounded-2xl space-y-4 shadow-emerald-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                            <span className="material-symbols-outlined text-indian-gold text-4xl">history_edu</span>
+                            <h3 className="font-serif font-bold text-2xl text-indian-gold">Preservation Ethics</h3>
+                            <p className="text-indian-bronze leading-relaxed">Every recording is encrypted and stored with cultural sensitivity. You retain full ownership of your story while contributing to the living ledger.</p>
+                        </div>
+                        <div className="bg-indian-dark/30 border border-indian-gold/15 backdrop-blur-md p-10 rounded-2xl space-y-4 shadow-emerald-glow hover:border-indian-gold/30 hover:bg-indian-dark/40 transition-all duration-300">
+                            <span className="material-symbols-outlined text-indian-gold text-4xl">language</span>
+                            <h3 className="font-serif font-bold text-2xl text-indian-gold">Dialect Mapping</h3>
+                            <p className="text-indian-bronze leading-relaxed">Our AI recognizes nuanced linguistic patterns, ensuring your unique phrasing and regional expressions are preserved with absolute accuracy.</p>
+                        </div>
+                    </section>
+                )}
+            </div>
         </div>
     );
 }

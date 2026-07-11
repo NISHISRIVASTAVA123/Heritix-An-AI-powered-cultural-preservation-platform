@@ -1,6 +1,9 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 import time
-import os
 import shutil
 
 def test_sample_flow():
@@ -24,7 +27,7 @@ def test_sample_flow():
     print("\n[1] Uploading audio...")
     try:
         with open(filename, "rb") as f:
-            files = {"file": f}
+            files = {"file": ("test_sample_audio.mp3", f, "audio/mpeg")}
             r = requests.post(f"{base_url}/api/upload-audio", files=files, data={"contributor": "Tester", "consent": "true"})
         
         if r.status_code != 200:

@@ -5,7 +5,7 @@ from typing import Dict, Any
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 # Simple cache for JWKS (JSON Web Key Set)
 _jwks_cache = {}
@@ -27,6 +27,13 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Security(secu
     Validates a Clerk JWT by fetching the public JWKS from the issuer URL
     in the token's unverified claims.
     """
+    if not credentials:
+        from config import settings
+        if not settings.CLERK_SECRET_KEY:
+            # Bypass authentication in dev/test mode when Clerk keys are not configured
+            return {"sub": "dummy-user-id", "name": "Developer"}
+        raise HTTPException(status_code=401, detail="Authentication required: No token provided.")
+
     token = credentials.credentials
     try:
         # Decode without verification first to extract the 'kid' and 'iss'

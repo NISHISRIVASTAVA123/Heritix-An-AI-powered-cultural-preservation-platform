@@ -23,10 +23,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-[#faf9f4]/80 dark:bg-[#1b1c19]/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(27,28,25,0.06)] flex justify-between items-center px-8 py-6 max-w-none">
+    <nav className="fixed top-0 w-full z-50 bg-indian-dark/65 border-b border-indian-gold/20 backdrop-blur-xl shadow-lg flex justify-between items-center px-8 py-6 max-w-none">
       <div className="flex items-center gap-2">
         <Link href="/">
-          <span className="text-2xl font-bold tracking-tight text-[#154212] dark:text-[#d0e8c2]">Heritix</span>
+          <span className="text-2xl font-serif font-bold tracking-widest text-gold-gradient">Heritix</span>
         </Link>
       </div>
       <div className="hidden md:flex items-center gap-2">
@@ -48,11 +48,11 @@ export default function Navbar() {
               {isHovered && (
                 <motion.div
                   layoutId="navbar-pill"
-                  className="absolute inset-0 bg-[#154212]/10 dark:bg-[#d0e8c2]/10 rounded-full -z-10"
+                  className="absolute inset-0 bg-indian-gold/15 rounded-full -z-10"
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
               )}
-              <span className={`relative z-10 font-headline font-semibold text-sm tracking-wide transition-colors duration-300 ${isHovered ? 'text-[#154212] dark:text-[#d0e8c2]' : 'text-[#1b1c19]/60 dark:text-[#faf9f4]/60'}`}>
+              <span className={`relative z-10 font-headline font-semibold text-sm tracking-wide transition-colors duration-300 ${isHovered ? 'text-indian-gold' : 'text-indian-cream/80'}`}>
                 {link.name}
               </span>
             </ProtectedLink>
@@ -60,26 +60,26 @@ export default function Navbar() {
         })}
       </div>
       <div className="flex items-center gap-4">
-        <button onClick={toggleTheme} className="p-2 flex items-center justify-center rounded-full hover:bg-surface-container/50 dark:hover:bg-[#2d2e2a]/50 transition-all duration-500 ease-in-out scale-95 active:scale-90" aria-label="Toggle theme">
+        <button onClick={toggleTheme} className="p-2 flex items-center justify-center rounded-full hover:bg-indian-dark/50 transition-all duration-500 ease-in-out scale-95 active:scale-90" aria-label="Toggle theme">
           {mounted && theme === 'dark' ? (
-            <Moon className="w-5 h-5 text-[#d0e8c2]" />
+            <Moon className="w-5 h-5 text-indian-gold" />
           ) : mounted ? (
-            <Sun className="w-5 h-5 text-[#154212]" />
+            <Sun className="w-5 h-5 text-indian-gold" />
           ) : (
             <div className="w-5 h-5" />
           )}
         </button>
-
+ 
         {!isSignedIn && isLoaded && (
           <SignInButton mode="modal">
-            <button className="bg-[#154212] hover:bg-[#1b5517] text-[#faf9f4] dark:bg-[#d0e8c2] dark:hover:bg-[#bce0a8] dark:text-[#1b1c19] px-5 py-2 rounded-full font-headline font-bold text-sm transition-all duration-300 shadow-sm active:scale-95">
+            <button className="bg-gold-gradient hover:opacity-95 text-indian-dark border border-indian-gold/30 px-5 py-2 rounded-full font-headline font-bold text-sm transition-all duration-300 shadow-md active:scale-95 cursor-pointer">
               Sign In
             </button>
           </SignInButton>
         )}
-
+ 
         {isSignedIn && isLoaded && (
-          <UserButton afterSwitchSessionUrl="/" appearance={{ elements: { avatarBox: "w-9 h-9 border border-[#154212]/20 dark:border-[#d0e8c2]/20 shadow-sm" } }} />
+          <UserButton afterSwitchSessionUrl="/" appearance={{ elements: { avatarBox: "w-9 h-9 border border-indian-gold/20 shadow-sm" } }} />
         )}
       </div>
     </nav>

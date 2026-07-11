@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     MONGODB_URL: str
     DB_NAME: str = "heritix_db"
     GROQ_API_KEY: str
-    HUGGINGFACEHUB_API_TOKEN: str
+    HUGGINGFACEHUB_API_TOKEN: str | None = None
     CLERK_SECRET_KEY: SecretStr | None = None
 
     model_config = SettingsConfigDict(

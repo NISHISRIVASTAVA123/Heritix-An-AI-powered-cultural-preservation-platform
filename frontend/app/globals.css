@@ -4,55 +4,68 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-tertiary: #60233e;
-  --color-surface-container-lowest: #ffffff;
+  --color-tertiary: #063b25;
+  --color-surface-container-lowest: #0d0e0c;
   --color-error-container: #ffdad6;
   --color-on-tertiary-fixed: #3b0520;
-  --color-surface: #faf9f4;
-  --color-surface-container-high: #e9e8e3;
-  --color-outline: #72796e;
+  --color-surface: #121311;
+  --color-surface-container-high: #262824;
+  --color-outline: #8b9286;
   --color-on-tertiary-fixed-variant: #71314c;
   --color-primary-fixed-dim: #a1d494;
   --color-primary-fixed: #bcf0ae;
   --color-on-primary-fixed-variant: #23501e;
   --color-inverse-primary: #a1d494;
   --color-tertiary-container: #7c3a55;
-  --color-secondary-container: #fdc39a;
+  --color-secondary-container: #581830;
   --color-tertiary-fixed-dim: #ffb0cc;
-  --color-on-surface: #1b1c19;
-  --color-surface-container-low: #f5f4ef;
-  --color-surface-container-highest: #e3e3de;
-  --color-on-background: #1b1c19;
+  --color-on-surface: #faf5ec;
+  --color-surface-container-low: #171815;
+  --color-surface-container-highest: #31332f;
+  --color-on-background: #faf5ec;
   --color-on-tertiary: #ffffff;
   --color-inverse-surface: #30312e;
   --color-outline-variant: #c2c9bb;
   --color-on-secondary: #ffffff;
   --color-surface-dim: #dbdad5;
   --color-on-secondary-fixed: #301400;
-  --color-surface-bright: #faf9f4;
+  --color-surface-bright: #121311;
   --color-secondary-fixed-dim: #f4bb92;
   --color-error: #ba1a1a;
-  --color-on-surface-variant: #42493e;
-  --color-background: #faf9f4;
+  --color-on-surface-variant: #c5a880;
+  --color-background: #121311;
   --color-surface-tint: #3b6934;
-  --color-primary: #154212;
+  --color-primary: #d4af37;
   --color-inverse-on-surface: #f2f1ec;
-  --color-on-primary-container: #9dd090;
+  --color-on-primary-container: #faf5ec;
   --color-on-primary-fixed: #002201;
-  --color-surface-variant: #e3e3de;
-  --color-primary-container: #2d5a27;
+  --color-surface-variant: #333d31;
+  --color-primary-container: #8b2316;
   --color-on-tertiary-container: #ffaac8;
   --color-secondary-fixed: #ffdcc5;
-  --color-secondary: #805533;
-  --color-surface-container: #efeee9;
+  --color-secondary: #8b2316;
+  --color-surface-container: #1c1d1a;
   --color-on-error: #ffffff;
   --color-on-secondary-fixed-variant: #653d1e;
   --color-tertiary-fixed: #ffd9e4;
-  --color-on-secondary-container: #794e2e;
-  --color-on-primary: #ffffff;
+  --color-on-secondary-container: #faf5ec;
+  --color-on-primary: #121311;
   --color-on-error-container: #93000a;
 
-  --font-headline: var(--font-manrope);
+  --color-indian-terracotta: #8b2316;
+  --color-indian-emerald: #063b25;
+  --color-indian-prussian: #0e2330;
+  --color-indian-wine: #581830;
+  --color-indian-olive: #3b3f21;
+  --color-indian-cream: #faf5ec;
+  --color-indian-gold: #d4af37;
+  --color-indian-bronze: #c5a880;
+  --color-indian-dark: #121311;
+
+  --font-serif: var(--font-cormorant);
+  --font-display: var(--font-playfair);
+
+  --font-headline: var(--font-serif);
   --font-body: var(--font-inter);
   --font-label: var(--font-inter);
 
@@ -63,27 +76,27 @@
 
 @layer base {
   .dark {
-    --color-surface: #1b1c19;
-    --color-on-surface: #e3e3de;
-    --color-surface-container-lowest: #0f100d;
+    --color-surface: #121311;
+    --color-on-surface: #faf5ec;
+    --color-surface-container-lowest: #0d0e0c;
     --color-surface-container-low: #171815;
-    --color-surface-container: #1d1e1b;
-    --color-surface-container-high: #282926;
-    --color-surface-container-highest: #333431;
-    --color-on-surface-variant: #c2c9bb;
+    --color-surface-container: #1c1d1a;
+    --color-surface-container-high: #262824;
+    --color-surface-container-highest: #31332f;
+    --color-on-surface-variant: #c5a880;
     
-    --color-primary: #a1d494;
-    --color-on-primary: #003a01;
-    --color-primary-container: #154212;
-    --color-on-primary-container: #bcf0ae;
+    --color-primary: #d4af37;
+    --color-on-primary: #121311;
+    --color-primary-container: #8b2316;
+    --color-on-primary-container: #faf5ec;
     
-    --color-secondary: #f4bb92;
-    --color-on-secondary: #4b2809;
-    --color-secondary-container: #653d1e;
-    --color-on-secondary-container: #ffdcc5;
+    --color-secondary: #8b2316;
+    --color-on-secondary: #faf5ec;
+    --color-secondary-container: #581830;
+    --color-on-secondary-container: #faf5ec;
     
-    --color-tertiary: #ffb0cc;
-    --color-on-tertiary: #541632;
+    --color-tertiary: #063b25;
+    --color-on-tertiary: #faf5ec;
     --color-tertiary-container: #71314c;
     --color-on-tertiary-container: #ffd9e4;
     
@@ -106,7 +119,7 @@ body {
 }
 
 h1, h2, h3, .font-headline {
-  font-family: var(--font-headline), sans-serif;
+  font-family: var(--font-headline), serif;
 }
 
 .tonal-shift-bg {
@@ -118,4 +131,63 @@ h1, h2, h3, .font-headline {
     background-color: rgba(27, 28, 25, 0.8);
   }
 }
+
+/* Repeating Patola Textile Print Pattern */
+.bg-indian-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z' fill='none' stroke='%23d4af37' stroke-opacity='0.12' stroke-width='1.5'/%3E%3Ccircle cx='40' cy='40' r='4' fill='%23d4af37' fill-opacity='0.15'/%3E%3Cpath d='M40 12 L68 40 L40 68 L12 40 Z' fill='none' stroke='%23d4af37' stroke-opacity='0.08' stroke-width='0.75'/%3E%3Cpath d='M40 24 L56 40 L40 56 L24 40 Z' fill='none' stroke='%23d4af37' stroke-opacity='0.05' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Tanjore Frame Borders - elegant double border reminiscent of traditional miniature paintings */
+.border-tanjore {
+  border: 2px solid rgba(212, 175, 55, 0.7);
+  outline: 1.5px solid rgba(212, 175, 55, 0.45);
+  outline-offset: 6px;
+}
+
+/* Gold Metallic Gradients */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #ffeaa7 0%, #d4af37 40%, #c5a880 70%, #9a7410 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #ffeaa7 0%, #d4af37 45%, #9a7410 100%);
+}
+
+/* Themed Jewel Glow Shadows to add ambient backlight to glassmorphic panels */
+.shadow-emerald-glow {
+  box-shadow: 0 12px 50px -6px rgba(16, 185, 129, 0.35), 0 0 30px 2px rgba(16, 185, 129, 0.2), inset 0 0 12px rgba(250, 245, 236, 0.1);
+}
+
+.shadow-wine-glow {
+  box-shadow: 0 12px 50px -6px rgba(236, 72, 153, 0.35), 0 0 30px 2px rgba(236, 72, 153, 0.18), inset 0 0 12px rgba(250, 245, 236, 0.1);
+}
+
+.shadow-prussian-glow {
+  box-shadow: 0 12px 50px -6px rgba(96, 165, 250, 0.35), 0 0 30px 2px rgba(96, 165, 250, 0.2), inset 0 0 12px rgba(250, 245, 236, 0.1);
+}
+
+.shadow-olive-glow {
+  box-shadow: 0 12px 50px -6px rgba(234, 179, 8, 0.35), 0 0 30px 2px rgba(234, 179, 8, 0.18), inset 0 0 12px rgba(250, 245, 236, 0.1);
+}
+
+/* Elegant drop-cap styled typography for cultural narration headers */
+.drop-cap::first-letter {
+  font-family: var(--font-display), serif;
+  font-size: 4rem;
+  float: left;
+  line-height: 0.85;
+  margin-right: 0.65rem;
+  margin-top: 0.15rem;
+  background: linear-gradient(135deg, #ffeaa7 0%, #d4af37 55%, #9a7410 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 

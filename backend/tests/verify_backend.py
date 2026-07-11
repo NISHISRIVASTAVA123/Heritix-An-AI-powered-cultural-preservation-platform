@@ -1,10 +1,13 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import wave
 import struct
 import math
 import requests
 import time
 import json
-import os
 
 def create_wav(filename="test_audio.wav"):
     # Create a 1-second tone WAV file (440Hz)
@@ -34,7 +37,7 @@ def test_flow():
     create_wav("test_audio.wav")
     print("\n[1] Uploading audio...")
     with open("test_audio.wav", "rb") as f:
-        files = {"file": f}
+        files = {"file": ("test_audio.wav", f, "audio/wav")}
         r = requests.post(f"{base_url}/api/upload-audio", files=files, data={"contributor": "Automated Tester", "consent": "true"})
     
     if r.status_code != 200:
