@@ -4,6 +4,14 @@ from typing import List, Optional
 
 router = APIRouter()
 
+DEFAULT_MOTIFS = {
+    "Folk Medicine": ["Healing", "Spices", "Nature", "Plant Lore"],
+    "Agriculture": ["Soil", "Seeds", "Rain", "Season", "Tillage"],
+    "Folklore & Stories": ["Oral Legend", "Ancestors", "Mythology", "Morals"],
+    "Cultural Rituals": ["Worship", "Festival", "Community", "Ceremony"],
+    "Life Advice & Ethics": ["Wisdom", "Elder Guide", "Lineage", "Philosophy"],
+}
+
 def serialize_object_ids(data):
     if isinstance(data, dict):
         return {k: serialize_object_ids(v) for k, v in data.items()}
@@ -57,6 +65,10 @@ async def get_all_records() -> List[dict]:
         if "title" not in r: r["title"] = "Untitled Recording"
         if "contributor" not in r: r["contributor"] = "Anonymous"
         
+        # Motifs fallback
+        if not r.get("motifs"):
+            r["motifs"] = DEFAULT_MOTIFS.get(r["category"], ["Heritage", "Culture", "Preservation"])
+            
         # Flatten summary
         content = r.get("content", {})
         if content:
@@ -170,6 +182,11 @@ async def search_records(
     formatted_records = []
     for r in records:
         r["_id"] = str(r["_id"])
+        
+        # Motifs fallback
+        if not r.get("motifs"):
+            r["motifs"] = DEFAULT_MOTIFS.get(r.get("category", "Uncategorized"), ["Heritage", "Culture", "Preservation"])
+            
         # Flatten content structure for frontend if needed, or keeping it nested
         # Let's keep structure but ensure commonly used fields are accessible
         content = r.get("content", {})
@@ -270,6 +287,7 @@ async def get_nearby_records(
         
     return formatted_records
 
+
 @router.get("/{record_id}")
 async def get_record_by_id(record_id: str) -> dict:
     """
@@ -300,16 +318,32 @@ async def get_record_by_id(record_id: str) -> dict:
         "contributor": metadata.get("contributor"),
         "transcript": metadata.get("transcript"),
         "audio_url": metadata.get("audio_url"),
+        "illustration_url": metadata.get("illustration_url"),
         "created_at": metadata.get("created_at"),
         "processing_status": metadata.get("processing_status"),
+        "motifs": metadata.get("motifs") if metadata.get("motifs") else DEFAULT_MOTIFS.get(metadata.get("category"), ["Heritage", "Culture", "Preservation"]),
         # Content fields
         "education_data": content.get("education_data") if content else None,
         "translations": content.get("translations") if content else None,
         "extraction_data": content.get("extraction_data") if content else None,
-        "context_data": content.get("context_data") if content else None
+        "context_data": content.get("context_data") if content else None,
+        "wisdom_guide": content.get("wisdom_guide") if content else None
     }
     
     return result
+
+@router.delete("/{record_id}")
+async def delete_record(record_id: str):
+    """
+    Delete a record and its content from the database.
+    """
+    res_knowledge = await db.db.knowledge.delete_one({"_id": record_id})
+    res_content = await db.db.knowledge_content.delete_one({"knowledge_id": record_id})
+    
+    if res_knowledge.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Record not found")
+        
+    return {"status": "success", "message": "Record deleted successfully"}
 
 @router.get("/map/map-markers")
 async def get_map_markers():

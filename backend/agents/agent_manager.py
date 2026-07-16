@@ -5,6 +5,7 @@ from .categorization_agent import CategorizationAgent
 from .context_agent import ContextAgent
 from .education_agent import EducationAgent
 from .translation_agent import TranslationAgent
+from .wisdom_guide_agent import WisdomGuideAgent
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 # Helper for Retry Logic
@@ -34,6 +35,7 @@ class AgentManager:
         self.register_agent(ContextAgent())
         self.register_agent(EducationAgent())
         self.register_agent(TranslationAgent())
+        self.register_agent(WisdomGuideAgent())
 
     def register_agent(self, agent: BaseAgent) -> None:
         """
@@ -113,6 +115,14 @@ class AgentManager:
         """
         if "translation" in self.agents:
             return await execute_agent_scan(self.agents["translation"], text)
+        return {}
+
+    async def process_wisdom_guide(self, text: str) -> Dict[str, Any]:
+        """
+        Analyze text to extract a structured recipe or method.
+        """
+        if "wisdom_guide" in self.agents:
+            return await execute_agent_scan(self.agents["wisdom_guide"], text)
         return {}
 
     async def run_pipeline(self, text: str) -> Dict[str, Any]:

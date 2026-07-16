@@ -43,6 +43,19 @@ export default function ArchivePage() {
         fetchRecords();
     }, [fetchRecords]);
 
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this record? This action is permanent and cannot be undone.")) {
+            return;
+        }
+        try {
+            await axios.delete(apiUrl(`/archive/${id}`));
+            fetchRecords();
+        } catch (error) {
+            console.error("Error deleting record:", error);
+            alert("Could not delete record. Please try again.");
+        }
+    };
+
     const categories = ['Category', 'Folk Medicine', 'Agriculture', 'Folklore & Stories', 'Cultural Rituals', 'Life Advice & Ethics'];
 
     // Local Search Filter
@@ -68,21 +81,20 @@ export default function ArchivePage() {
                             <h1 className="text-5xl font-extrabold font-serif tracking-tight text-gold-gradient mb-4">Knowledge Archive</h1>
                             <p className="text-indian-bronze text-lg leading-relaxed max-w-2xl">Explore the wisdom of generations past, preserved for the future. An immutable ledger of oral histories and cultural practices.</p>
                         </div>
-                        
                         {/* View Toggle */}
                         <div className="bg-indian-dark/30 border border-indian-gold/15 p-1 rounded-full flex items-center self-start w-fit">
                             <button 
                                 className="px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all bg-indian-gold text-indian-dark shadow-md cursor-default"
                             >
                                 <span className="material-symbols-outlined text-sm">grid_view</span>
-                                Grid
+                                Grid View
                             </button>
                             <Link 
                                 href="/explore"
                                 className="px-6 py-2.5 rounded-full flex items-center gap-2 font-bold text-sm transition-all text-indian-cream hover:bg-white/5"
                             >
                                 <span className="material-symbols-outlined text-sm">map</span>
-                                Map
+                                Map View
                             </Link>
                         </div>
                     </div>
@@ -164,6 +176,7 @@ export default function ArchivePage() {
                                 date={record.created_at}
                                 audioUrl={record.audio_url}
                                 summary={record.summary || record.transcript}
+                                onDelete={handleDelete}
                             />
                         ))}
                     </div>

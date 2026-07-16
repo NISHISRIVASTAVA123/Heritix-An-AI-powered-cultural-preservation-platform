@@ -10,9 +10,10 @@ interface KnowledgeCardProps {
     date: string;
     audioUrl?: string;
     summary?: string | { en?: string, hi?: string, native?: string };
+    onDelete?: (id: string) => void;
 }
 
-export default function KnowledgeCard({ id, title, category, contributor, date, audioUrl, summary }: KnowledgeCardProps) {
+export default function KnowledgeCard({ id, title, category, contributor, date, audioUrl, summary, onDelete }: KnowledgeCardProps) {
     // Determine visuals based on category string
     const categoryLower = category.toLowerCase();
     let Icon = 'auto_stories';
@@ -87,12 +88,29 @@ export default function KnowledgeCard({ id, title, category, contributor, date, 
                         {formattedDate}
                     </span>
 
-                    <Link href={`/archive/${id}`} className="bg-gold-gradient text-indian-dark px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95 border border-indian-gold/25 cursor-pointer">
-                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                            {audioUrl ? 'play_arrow' : 'article'}
-                        </span>
-                        {audioUrl ? 'Listen' : 'Read'}
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        {onDelete && (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onDelete(id);
+                                }}
+                                className="px-4 py-2.5 border border-red-500/30 hover:border-red-500 bg-red-950/20 hover:bg-red-900/40 text-red-400 hover:text-red-200 rounded-full font-headline font-bold text-xs flex items-center gap-1.5 transition-all duration-300 cursor-pointer"
+                                title="Delete Record"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                Delete
+                            </button>
+                        )}
+
+                        <Link href={`/archive/${id}`} className="bg-gold-gradient text-indian-dark px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:shadow-lg transition-all active:scale-95 border border-indian-gold/25 cursor-pointer">
+                            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                {audioUrl ? 'play_arrow' : 'article'}
+                            </span>
+                            {audioUrl ? 'Listen' : 'Read'}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </TiltedCard>

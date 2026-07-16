@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MandalaIcon } from '@/components/Icons';
+import { apiUrl } from '@/lib/api';
 
 // Language code → human-readable label
 const LANG_LABELS: Record<string, string> = {
@@ -40,6 +41,7 @@ interface RecordDetail {
     transcript: string;
     detected_language?: string;
     audio_url?: string;
+    illustration_url?: string;
     created_at: string;
     processing_status: string;
     education_data?: {
@@ -78,7 +80,7 @@ export default function RecordDetailPage() {
 
     const fetchRecord = async (recordId: string) => {
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/archive/${recordId}`);
+            const response = await axios.get(apiUrl(`/archive/${recordId}`));
             setRecord(response.data);
         } catch (err) {
             console.error("Error fetching record", err);
@@ -144,6 +146,15 @@ export default function RecordDetailPage() {
         }
     };
 
+    const getAudioUrl = (url?: string) => {
+        if (!url) return '';
+        if (url.includes('/uploads/')) {
+            const filename = url.split('/uploads/')[1];
+            return apiUrl(`/uploads/${filename}`);
+        }
+        return url;
+    };
+
     const formatTime = (time: number) => {
         if (isNaN(time)) return "0:00";
         const mins = Math.floor(time / 60);
@@ -171,9 +182,11 @@ export default function RecordDetailPage() {
             <MandalaIcon className="absolute left-[-150px] top-[15%] w-[500px] h-[500px] text-indian-gold/15 animate-[spin_210s_linear_infinite] pointer-events-none z-0" />
             <MandalaIcon className="absolute right-[-150px] top-[50%] w-[500px] h-[500px] text-indian-gold/15 animate-[spin_150s_linear_infinite] pointer-events-none z-0" />
             <main className="max-w-screen-xl mx-auto px-6 pt-32 pb-32 relative z-10">
-                <Link href="/archive" className="inline-flex items-center gap-2 mb-8 text-indian-cream/80 hover:text-indian-gold transition-colors font-bold text-sm tracking-wide uppercase">
-                    <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Archive
-                </Link>
+                <div className="flex flex-wrap gap-4 items-center mb-8">
+                    <Link href="/archive" className="inline-flex items-center gap-2 text-indian-cream/80 hover:text-indian-gold transition-colors font-bold text-xs md:text-sm tracking-wide uppercase">
+                        <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Archive
+                    </Link>
+                </div>
 
                 {/* Audio Player Section */}
                 {record.audio_url && (
@@ -200,14 +213,16 @@ export default function RecordDetailPage() {
                             <div className="flex-grow w-full md:px-8 flex flex-col justify-center relative z-10">
                                 <audio
                                     ref={audioRef}
-                                    src={record.audio_url}
+                                    src={getAudioUrl(record.audio_url)}
                                     onTimeUpdate={handleTimeUpdate}
                                     onLoadedMetadata={handleLoadedMetadata}
                                     onEnded={() => setIsPlaying(false)}
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => setIsPlaying(false)}
                                     className="hidden"
                                 />
                                 <div className="relative w-full h-2.5 bg-indian-cream/20 rounded-full overflow-hidden cursor-pointer" onClick={(e) => {
-                                    if (audioRef.current) {
+                                    if (audioRef.current && duration > 0) {
                                         const rect = e.currentTarget.getBoundingClientRect();
                                         const percent = (e.clientX - rect.left) / rect.width;
                                         audioRef.current.currentTime = percent * duration;
@@ -375,6 +390,22 @@ export default function RecordDetailPage() {
 
                     {/* Right Column: AI & Meta */}
                     <div className="lg:col-span-4 space-y-8">
+                        
+                        {/* AI-Generated Illustration Frame */}
+                        {record.illustration_url && (
+                            <div className="bg-indian-dark/30 backdrop-blur-md p-3 rounded-[2.5rem] border border-indian-gold/20 shadow-wine-glow overflow-hidden group">
+                                <div className="aspect-square w-full rounded-[2rem] overflow-hidden border border-indian-gold/15 shadow-inner p-1 relative">
+                                    <img 
+                                        src={record.illustration_url} 
+                                        alt={`AI generated illustration for ${record.title}`} 
+                                        className="w-full h-full object-cover rounded-[1.8rem] transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <span className="text-xs font-bold uppercase tracking-widest text-indian-gold bg-black/60 px-3 py-1.5 rounded-full border border-indian-gold/30">AI Story Illustration</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Classifications */}
                         <div className="bg-indian-dark/30 backdrop-blur-md p-8 rounded-[2rem] border border-indian-gold/15 shadow-wine-glow">

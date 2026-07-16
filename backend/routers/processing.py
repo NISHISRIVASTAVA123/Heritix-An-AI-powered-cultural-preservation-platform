@@ -8,6 +8,30 @@ from datetime import datetime
 import asyncio
 import uuid
 import os
+import urllib.parse
+import httpx
+
+async def generate_illustration(record_id: str, title: str, category: str) -> str | None:
+    """
+    Generate a cultural illustration using Pollinations.ai text-to-image API.
+    """
+    try:
+        prompt = f"A beautiful illustration of {title}, in traditional Indian folk art style, warm colors, detailed cultural elements, {category}"
+        encoded_prompt = urllib.parse.quote(prompt)
+        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=512&height=512&nologo=true&private=true"
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url)
+            if response.status_code == 200 and len(response.content) > 1000:
+                os.makedirs("uploads", exist_ok=True)
+                filename = f"{record_id}_illustration.jpg"
+                file_path = os.path.join("uploads", filename)
+                with open(file_path, "wb") as f:
+                    f.write(response.content)
+                return f"http://localhost:8000/uploads/{filename}"
+    except Exception as e:
+        print(f"Error generating illustration for {record_id}: {e}")
+    return None
 
 from agents.verification import execute_with_fallback
 from agents.verification.safety_agent import SafetyAgent
@@ -187,7 +211,7 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
         await log_stage(record_id, "extraction", "started")
         extraction_data = await agent_manager.process_extraction(transcript)
         
-        # Extract title and location from extraction_data
+        # Extract title, location and motifs from extraction_data
         update_fields = {}
         region_val = "unknown"
         if isinstance(extraction_data, dict):
@@ -212,6 +236,11 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
                     }
                 except (ValueError, TypeError):
                     pass
+            
+            if motifs := extraction_data.get("motifs"):
+                if isinstance(motifs, list):
+                    # Clean and normalize motifs
+                    update_fields["motifs"] = [str(m).strip().title() for m in motifs if m]
         
         # Update metadata fields if present
         if update_fields:
@@ -287,27 +316,30 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
                 "risk_level": aggregation["risk_level"],
                 "composite_score": aggregation["composite_score"]
             }
-        # --------------------------
-
-        # Stage 3: Education and Translation (Parallelized)
+        # --------------------------        # Stage 3: Education, Translation, and Wisdom Guide (Parallelized)
         await log_stage(record_id, "education", "started")
+        await log_stage(record_id, "wisdom_guide", "started")
+        
         edu_coro = agent_manager.process_education(transcript, language)
+        wisdom_coro = agent_manager.process_wisdom_guide(transcript)
         
         if language == "en":
             print(f"Skipping translation for English content (record {record_id})")
-            edu_result = await edu_coro
+            edu_result, wisdom_result = await asyncio.gather(edu_coro, wisdom_coro)
             trans_result = {}
             await log_stage(record_id, "translation", "skipped_en")
         else:
             await log_stage(record_id, "translation", "started")
-            edu_result, trans_result = await asyncio.gather(
+            edu_result, trans_result, wisdom_result = await asyncio.gather(
                 edu_coro,
-                agent_manager.process_translation(transcript)
+                agent_manager.process_translation(transcript),
+                wisdom_coro
             )
             await log_stage(record_id, "translation", "success")
             
         await log_stage(record_id, "education", "success")
-
+        await log_stage(record_id, "wisdom_guide", "success")
+ 
         # Save all outputs to knowledge_content
         await db.db.knowledge_content.update_one(
             {"knowledge_id": record_id},
@@ -317,6 +349,7 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
                 "context_data": context_data,
                 "education_data": edu_result,
                 "translations": trans_result,
+                "wisdom_guide": wisdom_result,
                 "verification_summary": {
                     "risk_level": aggregation["risk_level"],
                     "composite_score": aggregation["composite_score"],
@@ -325,6 +358,9 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
                 }
             }}
         )
+
+        # Generate illustration dynamically from title and category
+        illustration_url = await generate_illustration(record_id, update_fields.get("title", "Cultural Heritage"), category)
 
         # Completion Status
         status_action = routing.get("action", "approve")
@@ -337,6 +373,7 @@ async def process_record_task(record_id: str, audio_url: str) -> dict | None:
                 "processing_status": ProcessingStatus.COMPLETED,
                 "verification_status": final_status,
                 "disclaimer": routing.get("disclaimer"),
+                "illustration_url": illustration_url,
                 "processing_error": None,
                 "updated_at": datetime.utcnow()
             }}

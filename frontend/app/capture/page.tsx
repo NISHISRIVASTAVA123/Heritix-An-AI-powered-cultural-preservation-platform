@@ -9,6 +9,34 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { MandalaIcon, LotusIcon } from '@/components/Icons';
 
+const PROMPTS = [
+    {
+        category: "Festivals & Lore",
+        prompt: "What is a traditional festival or local celebration you remember from your childhood, and how was it celebrated differently back then?",
+        title: "Traditional Festival Celebrations"
+    },
+    {
+        category: "Folk Medicine & Herbs",
+        prompt: "What home remedies or local medicinal plants did your elders use to cure common illnesses like cough, fever, or pain?",
+        title: "Folk Medicine and Herbs"
+    },
+    {
+        category: "Family Traditions & Recipes",
+        prompt: "Share a special traditional recipe that has been passed down in your family. What are the key ingredients and cultural significance?",
+        title: "Traditional Family Recipe"
+    },
+    {
+        category: "Village Life & Legends",
+        prompt: "What are the local folk stories, ghost stories, or historical legends that the elders in your village or town used to tell?",
+        title: "Local Village Legends"
+    },
+    {
+        category: "Crafts & Lost Art",
+        prompt: "Do you know of any traditional crafts, weaving styles, or songs that were common in your youth but are rarely seen today?",
+        title: "Traditional Crafts and Songs"
+    }
+];
+
 interface ProcessingLogEntry {
     stage: string;
     status: string;
@@ -29,6 +57,43 @@ export default function CapturePage() {
     // New states for recording metrics
     const [recordingTime, setRecordingTime] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Companion memory-jogging states
+    const [currentPromptIdx, setCurrentPromptIdx] = useState(0);
+    const [isSpeakingPrompt, setIsSpeakingPrompt] = useState(false);
+
+    const speakPrompt = (text: string) => {
+        if (typeof window === 'undefined' || !window.speechSynthesis) {
+            alert("Speech synthesis is not supported in this browser.");
+            return;
+        }
+        
+        window.speechSynthesis.cancel();
+        
+        if (isSpeakingPrompt) {
+            setIsSpeakingPrompt(false);
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.lang.includes('IN') || v.name.includes('India'));
+        if (preferredVoice) utterance.voice = preferredVoice;
+        
+        utterance.onend = () => setIsSpeakingPrompt(false);
+        utterance.onerror = () => setIsSpeakingPrompt(false);
+        
+        setIsSpeakingPrompt(true);
+        window.speechSynthesis.speak(utterance);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (typeof window !== 'undefined' && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
 
     const { isSignedIn, isLoaded, getToken } = useAuth();
     const router = useRouter();
@@ -328,6 +393,51 @@ export default function CapturePage() {
                 {error && status !== 'failed' && (
                     <div className="bg-red-950/20 text-red-300 p-4 rounded-xl mb-8 border border-red-500/20 max-w-2xl w-full">
                         {error}
+                    </div>
+                )}
+
+                {/* Cultural Companion Card for inspiration */}
+                {status === 'idle' && (
+                    <div className="w-full max-w-2xl bg-indian-dark/30 border border-indian-gold/20 backdrop-blur-md p-6 md:p-8 rounded-[2rem] shadow-wine-glow mb-12 text-left relative overflow-hidden group animate-in slide-in-from-bottom duration-500">
+                        <div className="absolute -right-12 -top-12 w-32 h-32 bg-indian-gold/5 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
+                        
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-indian-gold p-2 bg-indian-gold/10 rounded-xl">auto_stories</span>
+                                <h3 className="font-headline text-xl font-bold text-gold-gradient">Cultural Memory Companion</h3>
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-indian-gold/10 text-indian-gold border border-indian-gold/20">
+                                {PROMPTS[currentPromptIdx].category}
+                            </span>
+                        </div>
+
+                        <p className="text-lg text-indian-cream font-serif leading-relaxed mb-6 italic relative z-10 pl-4 border-l-2 border-indian-gold">
+                            "{PROMPTS[currentPromptIdx].prompt}"
+                        </p>
+
+                        <div className="flex items-center gap-3 relative z-10 flex-wrap">
+                            <button
+                                onClick={() => speakPrompt(PROMPTS[currentPromptIdx].prompt)}
+                                className="px-4 py-2.5 rounded-full bg-indian-gold/10 hover:bg-indian-gold/20 border border-indian-gold/30 text-indian-gold font-headline font-bold text-xs uppercase tracking-widest flex items-center gap-2 cursor-pointer transition-colors duration-300"
+                            >
+                                <span className="material-symbols-outlined text-sm">{isSpeakingPrompt ? 'volume_off' : 'volume_up'}</span>
+                                {isSpeakingPrompt ? 'Stop speaking' : 'Listen Prompt'}
+                            </button>
+                            
+                            <button
+                                onClick={() => {
+                                    if (typeof window !== 'undefined' && window.speechSynthesis) {
+                                        window.speechSynthesis.cancel();
+                                    }
+                                    setIsSpeakingPrompt(false);
+                                    setCurrentPromptIdx((prev) => (prev + 1) % PROMPTS.length);
+                                }}
+                                className="px-4 py-2.5 rounded-full bg-transparent hover:bg-white/5 border border-indian-cream/20 text-indian-cream/80 hover:text-indian-cream font-headline font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 cursor-pointer transition-colors duration-300 ml-auto"
+                            >
+                                Next prompt
+                                <span className="material-symbols-outlined text-sm">navigate_next</span>
+                            </button>
+                        </div>
                     </div>
                 )}
 

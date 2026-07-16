@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { MandalaIcon, LotusIcon } from '@/components/Icons';
+import { apiUrl } from '@/lib/api';
 
 const GROQ_API_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY || "";
 
@@ -298,7 +299,7 @@ Return ONLY a valid JSON object. No markdown fences like \`\`\`json, no preamble
         setCommunityRecordsStatus('loading');
         setActiveCityFilter(city);
         try {
-            let url = `http://127.0.0.1:8000/archive/search?state=${encodeURIComponent(state)}`;
+            let url = apiUrl(`/archive/search?state=${encodeURIComponent(state)}`);
             if (city) {
                 url += `&city=${encodeURIComponent(city)}`;
             }

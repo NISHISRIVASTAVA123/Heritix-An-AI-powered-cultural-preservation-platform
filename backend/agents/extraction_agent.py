@@ -40,6 +40,7 @@ class ExtractionAgent(BaseAgent):
             - region (str): Specific geographic region associated with the cultural knowledge (e.g., "Kerala, India"). If unknown, return "unknown".
             - latitude (float or null): Estimated precise latitude of the region (e.g. 10.8505). Return null if indeterminable.
             - longitude (float or null): Estimated precise longitude of the region (e.g. 76.2711). Return null if indeterminable.
+            - motifs (list of str): 2 to 4 key themes or motifs that represent the core of this knowledge (e.g. ["Healing", "Spices", "Nature"], ["River", "Monsoon", "Mythology"], ["Worship", "Ancestors", "Ceremony"]).
             
             Do not add any markdown formatting like ```json ... ```. Just the raw JSON string.
             """
